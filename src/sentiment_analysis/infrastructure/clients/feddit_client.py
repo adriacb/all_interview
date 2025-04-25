@@ -2,10 +2,11 @@
 
 from typing import List, Optional
 import httpx
+from datetime import datetime
 
 from sentiment_analysis.logger import configure_logger
-from sentiment_analysis.models.comment import Comment
-from sentiment_analysis.models.subfeddit import Subfeddit
+from sentiment_analysis.domain.entities.comment import Comment
+from sentiment_analysis.domain.entities.subfeddit import Subfeddit
 
 
 class FedditClient:
@@ -51,7 +52,24 @@ class FedditClient:
             )
             response.raise_for_status()
             data = await response.json()
-            subfeddits = [Subfeddit(**subfeddit) for subfeddit in data["subfeddits"]]
+            
+            # Convert API response to domain entities
+            subfeddits = []
+            for subfeddit_data in data["subfeddits"]:
+                # Convert timestamps to datetime objects
+                created_at = datetime.fromtimestamp(subfeddit_data["created_at"])
+                updated_at = datetime.fromtimestamp(subfeddit_data["updated_at"])
+                
+                subfeddit = Subfeddit(
+                    id=subfeddit_data["id"],
+                    username=subfeddit_data["username"],
+                    title=subfeddit_data["title"],
+                    description=subfeddit_data["description"],
+                    created_at=created_at,
+                    updated_at=updated_at
+                )
+                subfeddits.append(subfeddit)
+            
             self.logger.info(
                 "Successfully fetched subfeddits",
                 count=len(subfeddits)
@@ -101,10 +119,26 @@ class FedditClient:
             )
             response.raise_for_status()
             data = await response.json()
-            comments = [Comment(**comment) for comment in data["comments"]]
+            
+            # Convert API response to domain entities
+            comments = []
+            for comment_data in data["comments"]:
+                # Convert timestamps to datetime objects
+                created_at = datetime.fromtimestamp(comment_data["created_at"])
+                updated_at = datetime.fromtimestamp(comment_data["updated_at"])
+                
+                comment = Comment(
+                    id=comment_data["id"],
+                    subfeddit_id=comment_data["subfeddit_id"],
+                    username=comment_data["username"],
+                    text=comment_data["text"],
+                    created_at=created_at,
+                    updated_at=updated_at
+                )
+                comments.append(comment)
+            
             self.logger.info(
                 "Successfully fetched comments",
-                subfeddit_id=subfeddit_id,
                 count=len(comments)
             )
             return comments
@@ -118,5 +152,5 @@ class FedditClient:
 
     async def close(self):
         """Close the HTTP client."""
-        self.logger.info("Closing Feddit client")
-        await self.client.aclose() 
+        await self.client.aclose()
+        self.logger.info("Feddit client closed") 
