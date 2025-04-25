@@ -39,4 +39,7 @@ ENV/
 *.log
 
 # Docker
-.docker/ 
+.docker/
+
+# Documentation
+docs/todo_sentiment_analysis.md 
