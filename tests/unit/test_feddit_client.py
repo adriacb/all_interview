@@ -28,9 +28,7 @@ class TestFedditClient:
                     "id": 1,
                     "username": "test_user",
                     "title": "Test Title",
-                    "description": "Test Description",
-                    "created_at": 1609459200,  # 2021-01-01 00:00:00
-                    "updated_at": 1609459200
+                    "description": "Test Description"
                 }
             ]
         }
@@ -53,8 +51,6 @@ class TestFedditClient:
         assert subfeddits[0].username == "test_user"
         assert subfeddits[0].title == "Test Title"
         assert subfeddits[0].description == "Test Description"
-        assert subfeddits[0].created_at == datetime.fromtimestamp(1609459200)
-        assert subfeddits[0].updated_at == datetime.fromtimestamp(1609459200)
 
         # Verify API call
         client.client.get.assert_called_once_with(

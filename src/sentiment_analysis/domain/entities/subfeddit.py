@@ -1,6 +1,5 @@
 """Subfeddit domain entity."""
 
-from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core._pydantic_core import ValidationError
 
@@ -12,8 +11,6 @@ class Subfeddit(BaseModel):
     username: str = Field(min_length=1)
     title: str = Field(min_length=1)
     description: str
-    created_at: datetime
-    updated_at: datetime
     
     @field_validator('id')
     @classmethod
@@ -39,14 +36,6 @@ class Subfeddit(BaseModel):
             raise ValidationError("Description must be a string")
         return v
     
-    @field_validator('created_at', 'updated_at')
-    @classmethod
-    def validate_datetime(cls, v):
-        """Validate that the value is a datetime."""
-        if not isinstance(v, datetime):
-            raise ValidationError("must be a datetime")
-        return v
-    
     class Config:
         """Pydantic model configuration."""
         json_schema_extra = {
@@ -54,8 +43,6 @@ class Subfeddit(BaseModel):
                 "id": 1,
                 "username": "test_user",
                 "title": "Test Subfeddit",
-                "description": "A test subfeddit",
-                "created_at": "2024-01-01T00:00:00",
-                "updated_at": "2024-01-01T00:00:00"
+                "description": "A test subfeddit"
             }
         } 

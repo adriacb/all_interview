@@ -1,6 +1,6 @@
 """Client for interacting with the Feddit API."""
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import httpx
 from datetime import datetime
 
@@ -25,9 +25,7 @@ class FedditClient:
         self.client = httpx.AsyncClient(base_url=base_url)
         self.logger = configure_logger().bind(service="feddit_client")
 
-    async def get_subfeddits(
-        self, limit: int = 10, skip: int = 0
-    ) -> List[Subfeddit]:
+    async def get_subfeddits(self, limit: int = 10, skip: int = 0) -> List[Subfeddit]:
         """Get a list of subfeddits.
 
         Args:
@@ -48,7 +46,10 @@ class FedditClient:
         try:
             response = await self.client.get(
                 "/api/v1/subfeddits/",
-                params={"limit": limit, "skip": skip}
+                params={
+                    "limit": limit,
+                    "skip": skip
+                }
             )
             response.raise_for_status()
             data = await response.json()
@@ -56,17 +57,11 @@ class FedditClient:
             # Convert API response to domain entities
             subfeddits = []
             for subfeddit_data in data["subfeddits"]:
-                # Convert timestamps to datetime objects
-                created_at = datetime.fromtimestamp(subfeddit_data["created_at"])
-                updated_at = datetime.fromtimestamp(subfeddit_data["updated_at"])
-                
                 subfeddit = Subfeddit(
                     id=subfeddit_data["id"],
                     username=subfeddit_data["username"],
                     title=subfeddit_data["title"],
-                    description=subfeddit_data["description"],
-                    created_at=created_at,
-                    updated_at=updated_at
+                    description=subfeddit_data["description"]
                 )
                 subfeddits.append(subfeddit)
             
@@ -78,6 +73,78 @@ class FedditClient:
         except httpx.HTTPError as e:
             self.logger.error(
                 "Failed to fetch subfeddits",
+                error=str(e),
+                status_code=e.response.status_code if hasattr(e, 'response') else None
+            )
+            raise
+
+    async def get_subfeddit(
+        self, subfeddit_id: int, limit: int = 10, skip: int = 0
+    ) -> Dict[str, Any]:
+        """Get details of a specific subfeddit including its comments.
+
+        Args:
+            subfeddit_id: ID of the subfeddit.
+            limit: Maximum number of comments to return. Defaults to 10.
+            skip: Number of comments to skip. Defaults to 0.
+
+        Returns:
+            Dictionary containing subfeddit details and comments.
+
+        Raises:
+            httpx.HTTPError: If the API request fails.
+        """
+        self.logger.info(
+            "Fetching subfeddit details",
+            subfeddit_id=subfeddit_id,
+            limit=limit,
+            skip=skip
+        )
+        try:
+            response = await self.client.get(
+                "/api/v1/subfeddit/",
+                params={
+                    "subfeddit_id": subfeddit_id,
+                    "limit": limit,
+                    "skip": skip
+                }
+            )
+            response.raise_for_status()
+            data = await response.json()
+            
+            # Convert comments to domain entities
+            comments = []
+            for comment_data in data["comments"]:
+                comment = Comment(
+                    id=comment_data["id"],
+                    subfeddit_id=subfeddit_id,
+                    username=comment_data["username"],
+                    text=comment_data["text"],
+                    created_at=datetime.fromtimestamp(comment_data["created_at"]).isoformat()
+                )
+                comments.append(comment)
+            
+            # Create subfeddit entity
+            subfeddit = Subfeddit(
+                id=data["id"],
+                username=data["username"],
+                title=data["title"],
+                description=data["description"]
+            )
+            
+            self.logger.info(
+                "Successfully fetched subfeddit details",
+                subfeddit_id=subfeddit_id,
+                comment_count=len(comments)
+            )
+            
+            return {
+                "subfeddit": subfeddit,
+                "comments": comments
+            }
+        except httpx.HTTPError as e:
+            self.logger.error(
+                "Failed to fetch subfeddit details",
                 error=str(e),
                 status_code=e.response.status_code if hasattr(e, 'response') else None
             )
@@ -123,17 +190,12 @@ class FedditClient:
             # Convert API response to domain entities
             comments = []
             for comment_data in data["comments"]:
-                # Convert timestamps to datetime objects
-                created_at = datetime.fromtimestamp(comment_data["created_at"])
-                updated_at = datetime.fromtimestamp(comment_data["updated_at"])
-                
                 comment = Comment(
                     id=comment_data["id"],
-                    subfeddit_id=comment_data["subfeddit_id"],
+                    subfeddit_id=subfeddit_id,
                     username=comment_data["username"],
                     text=comment_data["text"],
-                    created_at=created_at,
-                    updated_at=updated_at
+                    created_at=datetime.fromtimestamp(comment_data["created_at"]).isoformat()
                 )
                 comments.append(comment)
             
