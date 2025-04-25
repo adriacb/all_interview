@@ -1,4 +1,4 @@
-"""Tests for SentimentAnalysis domain entity."""
+"""Tests for SentimentAnalysis entity."""
 
 import pytest
 from datetime import datetime
@@ -13,13 +13,14 @@ def test_create_valid_sentiment_analysis():
     analysis = SentimentAnalysis(
         id=1,
         comment_id=2,
+        subfeddit_id=3,
         sentiment_score=0.5,
         sentiment_label="positive",
         created_at=now
     )
-    
     assert analysis.id == 1
     assert analysis.comment_id == 2
+    assert analysis.subfeddit_id == 3
     assert analysis.sentiment_score == 0.5
     assert analysis.sentiment_label == "positive"
     assert analysis.created_at == now
@@ -34,6 +35,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=0,  # Invalid: must be positive
             comment_id=2,
+            subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="positive",
             created_at=now
@@ -44,6 +46,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=0,  # Invalid: must be positive
+            subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="positive",
             created_at=now
@@ -54,6 +57,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            subfeddit_id=3,
             sentiment_score=1.5,  # Invalid: must be between -1 and 1
             sentiment_label="positive",
             created_at=now
@@ -64,6 +68,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="invalid",  # Invalid: not in allowed values
             created_at=now
@@ -74,7 +79,49 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="positive",
             created_at="invalid_datetime"  # Invalid: not a datetime
+        )
+
+
+def test_create_invalid_sentiment_score():
+    """Test creating SentimentAnalysis with invalid sentiment score."""
+    now = datetime.now()
+    with pytest.raises(ValidationError):
+        SentimentAnalysis(
+            id=1,
+            comment_id=2,
+            subfeddit_id=3,
+            sentiment_score=1.5,  # Invalid score > 1.0
+            sentiment_label="positive",
+            created_at=now
+        )
+
+
+def test_create_invalid_sentiment_label():
+    """Test creating SentimentAnalysis with invalid sentiment label."""
+    now = datetime.now()
+    with pytest.raises(ValidationError):
+        SentimentAnalysis(
+            id=1,
+            comment_id=2,
+            subfeddit_id=3,
+            sentiment_score=0.5,
+            sentiment_label="invalid",  # Invalid label
+            created_at=now
+        )
+
+
+def test_create_invalid_datetime():
+    """Test creating SentimentAnalysis with invalid datetime."""
+    with pytest.raises(ValidationError):
+        SentimentAnalysis(
+            id=1,
+            comment_id=2,
+            subfeddit_id=3,
+            sentiment_score=0.5,
+            sentiment_label="positive",
+            created_at="invalid"  # Invalid datetime
         ) 

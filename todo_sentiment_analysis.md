@@ -1,10 +1,10 @@
 # Sentiment Analysis Microservice TODO List
 
 ## Clean Architecture Setup
-- [ ] Refactor project structure
-  - [ ] Create domain layer (entities and business rules)
+- [x] Refactor project structure
+  - [x] Create domain layer (entities and business rules)
   - [ ] Create application layer (use cases)
-  - [ ] Create infrastructure layer (external services)
+  - [x] Create infrastructure layer (external services)
   - [ ] Create presentation layer (API endpoints)
   - [ ] Set up dependency injection
   - [ ] Configure dependency rules between layers
@@ -12,16 +12,16 @@
 ## Core Implementation
 - [x] Create basic project structure
 - [x] Set up logging configuration
-- [ ] Refactor FedditClient to infrastructure layer
+- [x] Refactor FedditClient to infrastructure layer
   - [x] Implement get_subfeddits method
   - [x] Implement get_comments method
   - [x] Add error handling
   - [x] Add logging
   - [x] Write unit tests
-- [ ] Create domain entities
-  - [ ] Define Subfeddit entity
-  - [ ] Define Comment entity
-  - [ ] Define SentimentAnalysis entity
+- [x] Create domain entities
+  - [x] Define Subfeddit entity
+  - [x] Define Comment entity
+  - [x] Define SentimentAnalysis entity
 - [ ] Create use cases
   - [ ] FetchSubfedditsUseCase
   - [ ] FetchCommentsUseCase
@@ -42,7 +42,7 @@
 - [x] Set up test directory structure
 - [x] Create test data
 - [x] Write unit tests for FedditClient
-- [ ] Write unit tests for domain entities
+- [x] Write unit tests for domain entities
 - [ ] Write unit tests for use cases
 - [ ] Write unit tests for SentimentAnalyzer
 - [ ] Write unit tests for main service
