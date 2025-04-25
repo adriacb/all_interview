@@ -69,6 +69,7 @@ class SentimentService:
             List of sentiment analysis results
             
         Raises:
+            ValueError: If the subfeddit is not found
             Exception: If an error occurs during analysis
         """
         self.logger.info(
@@ -81,29 +82,19 @@ class SentimentService:
         
         try:
             # Fetch all subfeddits (there are only 3 total according to docs)
-            response = await self.feddit_client.get_subfeddits(limit=10, skip=0)
-            matching_subfeddits = [s for s in response if s.title == subfeddit]
+            subfeddits = await self.feddit_client.get_subfeddits(limit=10, skip=0)
+            self.logger.info("Fetched subfeddits", subfeddits=subfeddits)
+            matching_subfeddits = [s for s in subfeddits if s.title == subfeddit]
             if not matching_subfeddits:
                 raise ValueError(f"Subfeddit '{subfeddit}' not found")
             
             subfeddit_id = matching_subfeddits[0].id
             
-            # Get subfeddit details and comments in one call
-            subfeddit_data = await self.feddit_client.get_subfeddit(
+            # Get comments directly using get_comments
+            comments = await self.feddit_client.get_comments(
                 subfeddit_id=subfeddit_id,
                 limit=limit
             )
-            
-            comments = [
-                Comment(
-                    id=comment.id,
-                    subfeddit_id=subfeddit_id,
-                    username=comment.username,
-                    text=comment.text,
-                    created_at=comment.created_at
-                )
-                for comment in subfeddit_data["comments"]
-            ]
             
             # Filter comments by time range if specified
             if start_time or end_time:
@@ -129,7 +120,16 @@ class SentimentService:
             )
             
             return analyses
+        except ValueError as e:
+            # Re-raise ValueError for subfeddit not found
+            self.logger.error(
+                "Subfeddit not found",
+                subfeddit=subfeddit,
+                error=str(e)
+            )
+            raise
         except Exception as e:
+            # Log and re-raise other errors
             self.logger.error(
                 "Failed to analyze subfeddit sentiment",
                 subfeddit=subfeddit,

@@ -1,6 +1,6 @@
 """Dependency injection container."""
 
-from sentiment_analysis.infrastructure.services.feddit_client import FedditClient
+from sentiment_analysis.infrastructure.clients.feddit_client import FedditClient
 from sentiment_analysis.infrastructure.repositories.feddit_subfeddit_repository import FedditSubfedditRepository
 from sentiment_analysis.infrastructure.repositories.feddit_comment_repository import FedditCommentRepository
 from sentiment_analysis.infrastructure.repositories.memory_sentiment_analysis_repository import MemorySentimentAnalysisRepository
@@ -13,7 +13,7 @@ from sentiment_analysis.application.services.sentiment_analysis_service import S
 class Container:
     """Dependency injection container."""
     
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "http://0.0.0.0:8080"):
         """Initialize the container.
         
         Args:

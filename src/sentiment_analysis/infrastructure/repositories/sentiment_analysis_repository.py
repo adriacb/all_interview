@@ -1,16 +1,19 @@
-"""Repository interface for sentiment analysis."""
+"""Implementation of the sentiment analysis repository."""
 
-from abc import ABC, abstractmethod
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
+from sentiment_analysis.domain.repositories.sentiment_analysis_repository import SentimentAnalysisRepository as SentimentAnalysisRepositoryInterface
 
 
-class SentimentAnalysisRepository(ABC):
-    """Repository interface for sentiment analysis operations."""
+class SentimentAnalysisRepository(SentimentAnalysisRepositoryInterface):
+    """Implementation of the sentiment analysis repository."""
 
-    @abstractmethod
+    def __init__(self):
+        """Initialize the repository."""
+        self._analyses: List[SentimentAnalysis] = []
+
     async def create(self, sentiment_analysis: SentimentAnalysis) -> SentimentAnalysis:
         """Create a new sentiment analysis.
         
@@ -20,9 +23,9 @@ class SentimentAnalysisRepository(ABC):
         Returns:
             Created SentimentAnalysis entity
         """
-        pass
+        self._analyses.append(sentiment_analysis)
+        return sentiment_analysis
 
-    @abstractmethod
     async def get_by_comment_id(self, comment_id: int) -> Optional[SentimentAnalysis]:
         """Get sentiment analysis by comment ID.
         
@@ -32,9 +35,11 @@ class SentimentAnalysisRepository(ABC):
         Returns:
             SentimentAnalysis entity if found, None otherwise
         """
-        pass
+        for analysis in self._analyses:
+            if analysis.comment_id == comment_id:
+                return analysis
+        return None
 
-    @abstractmethod
     async def get_by_subfeddit_id(
         self,
         subfeddit_id: int,
@@ -51,18 +56,20 @@ class SentimentAnalysisRepository(ABC):
         Returns:
             List of SentimentAnalysis entities
         """
-        pass
+        filtered = [
+            analysis for analysis in self._analyses
+            if analysis.subfeddit_id == subfeddit_id
+        ]
+        return sorted(filtered, key=lambda x: x.created_at, reverse=True)[skip:skip + limit]
 
-    @abstractmethod
     async def save(self, analysis: SentimentAnalysis) -> None:
         """Save a sentiment analysis result.
         
         Args:
             analysis: The sentiment analysis result to save
         """
-        pass
+        self._analyses.append(analysis)
 
-    @abstractmethod
     async def get_by_subfeddit(
         self,
         subfeddit_id: int,
@@ -81,4 +88,10 @@ class SentimentAnalysisRepository(ABC):
         Returns:
             List of sentiment analyses
         """
-        pass 
+        filtered = [
+            analysis for analysis in self._analyses
+            if analysis.subfeddit_id == subfeddit_id
+            and (not start_time or analysis.created_at >= start_time)
+            and (not end_time or analysis.created_at <= end_time)
+        ]
+        return sorted(filtered, key=lambda x: x.created_at, reverse=True)[:limit] 

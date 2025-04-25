@@ -1,75 +1,99 @@
-"""Sentiment analyzer using OpenAI GPT-4o mini."""
+"""Sentiment analyzer using OpenAI's API."""
 
-from typing import Optional
 import os
+from typing import List, Optional
 from openai import AsyncOpenAI
-
+from pydantic import BaseModel, Field
+from sentiment_analysis.domain.entities.comment import Comment
+from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
 from sentiment_analysis.logger import configure_logger
+from sentiment_analysis.config import OPENAI_API_KEY
+from datetime import datetime
 
+logger = configure_logger().bind(service="sentiment_analyzer")
+
+class OutputFormat(BaseModel):
+    """Output format for the sentiment analysis."""
+    sentiment_score: float = Field(description="The sentiment score of the comment, between -1.0 and 1.0")
+    sentiment_label: str = Field(description="The sentiment label of the comment, either 'positive' or 'negative'")
 
 class SentimentAnalyzer:
-    """Analyzer for performing sentiment analysis on text.
-
-    This class uses OpenAI's GPT-4o mini to analyze the sentiment of text and return a polarity score.
-    """
+    """Analyzes sentiment of comments using OpenAI's API."""
 
     def __init__(self, api_key: Optional[str] = None):
         """Initialize the sentiment analyzer.
-
-        Args:
-            api_key: OpenAI API key. If not provided, will use OPENAI_API_KEY environment variable.
-        """
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError("OpenAI API key is required")
         
+        Args:
+            api_key: OpenAI API key. If not provided, will be loaded from environment.
+        """
+        self.api_key = api_key or OPENAI_API_KEY
         self.client = AsyncOpenAI(api_key=self.api_key)
         self.logger = configure_logger().bind(service="sentiment_analyzer")
 
-    async def analyze(self, text: str) -> float:
-        """Analyze the sentiment of the given text.
+    async def analyze(self, comments: List[Comment]) -> List[SentimentAnalysis]:
+        """Analyze sentiment for a list of comments.
 
         Args:
-            text: The text to analyze.
+            comments: List of comments to analyze.
 
         Returns:
-            A polarity score between -1.0 (negative) and 1.0 (positive).
+            List of SentimentAnalysis objects.
 
         Raises:
-            Exception: If an error occurs during analysis.
+            Exception: If sentiment analysis fails.
         """
         self.logger.info(
-            "Analyzing sentiment",
-            text_length=len(text)
+            "Analyzing sentiment for comments",
+            comment_count=len(comments)
         )
-        try:
-            # Create prompt for sentiment analysis
-            prompt = f"""
-            Analyze the sentiment of the following text and return a single number between -1.0 and 1.0,
-            where -1.0 is extremely negative, 0 is neutral, and 1.0 is extremely positive.
-            Only return the number, nothing else.
+        
+        analyses = []
+        for comment in comments:
+            try:
+                response = await self.client.responses.parse(
+                    model="gpt-4o-mini",
+                    input=[
+                        {
+                            "role": "system",
+                            "content": "You are a sentiment analyst professional. Analyze the following text and return a single number between -1.0 and 1.0, where -1.0 is extremely negative, 0.0 is neutral, and 1.0 is extremely positive.",
+                        },
+                        {"role": "user", "content": comment.text},
+                    ],
+                    text_format=OutputFormat
+                )
+                output = response.output_parsed
+                self.logger.info("Response from OpenAI", parsed_response=output)
 
-            Text: "{text}"
-            """
+                score = output.sentiment_score
+                label = output.sentiment_label
 
-            # Call OpenAI API
-            response = await self.client.responses.create(
-                model="gpt-4o-mini",
-                instructions="You are a sentiment analysis tool that returns only numbers between -1.0 and 1.0.",
-                input=prompt
-            )
-            
-            # Extract and parse the score
-            score = float(response.output_text.strip())
-            
-            self.logger.info(
-                "Successfully analyzed sentiment",
-                polarity=score
-            )
-            return score
-        except Exception as e:
-            self.logger.error(
-                "Failed to analyze sentiment",
-                error=str(e)
-            )
-            raise 
+                # Create sentiment analysis
+                analysis = SentimentAnalysis(
+                    id=comment.id,  # Use comment ID as analysis ID
+                    comment_id=comment.id,
+                    subfeddit_id=comment.subfeddit_id,
+                    sentiment_score=score,
+                    sentiment_label=label,
+                    created_at=datetime.now()
+                )
+                
+                analyses.append(analysis)
+                self.logger.info(
+                    "Successfully analyzed comment",
+                    comment_id=comment.id,
+                    sentiment_score=analysis.sentiment_score,
+                    sentiment_label=analysis.sentiment_label
+                )
+            except Exception as e:
+                self.logger.error(
+                    "Failed to analyze comment",
+                    error=str(e),
+                    comment_id=comment.id
+                )
+                raise
+        
+        self.logger.info(
+            "Successfully analyzed all comments",
+            analysis_count=len(analyses)
+        )
+        return analyses 

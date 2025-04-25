@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.repositories.comment_repository import CommentRepository
-from sentiment_analysis.infrastructure.services.feddit_client import FedditClient
+from sentiment_analysis.infrastructure.clients.feddit_client import FedditClient
 
 
 class FedditCommentRepository(CommentRepository):

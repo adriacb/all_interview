@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from sentiment_analysis.domain.entities.subfeddit import Subfeddit
 from sentiment_analysis.domain.repositories.subfeddit_repository import SubfedditRepository
-from sentiment_analysis.infrastructure.services.feddit_client import FedditClient
+from sentiment_analysis.infrastructure.clients.feddit_client import FedditClient
 
 
 class FedditSubfedditRepository(SubfedditRepository):

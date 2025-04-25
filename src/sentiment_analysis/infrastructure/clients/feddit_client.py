@@ -7,6 +7,7 @@ from datetime import datetime
 from sentiment_analysis.logger import configure_logger
 from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.entities.subfeddit import Subfeddit
+from sentiment_analysis.config import FEDDIT_API_URL
 
 
 class FedditClient:
@@ -15,11 +16,11 @@ class FedditClient:
     This client provides methods to fetch subfeddits and comments from the Feddit API.
     """
 
-    def __init__(self, base_url: str = "http://0.0.0.0:8080"):
+    def __init__(self, base_url: str = FEDDIT_API_URL):
         """Initialize the Feddit client.
 
         Args:
-            base_url: Base URL of the Feddit API. Defaults to "http://0.0.0.0:8080".
+            base_url: Base URL of the Feddit API. Defaults to FEDDIT_API_URL from config.
         """
         self.base_url = base_url
         self.client = httpx.AsyncClient(base_url=base_url)
@@ -51,12 +52,14 @@ class FedditClient:
                     "skip": skip
                 }
             )
+            self.logger.info("Fetched response get_subfeddits", response=response)
             response.raise_for_status()
-            data = await response.json()
+            data = response.json()
+            self.logger.info("Fetched data get_subfeddits", data=data)
             
             # Convert API response to domain entities
             subfeddits = []
-            for subfeddit_data in data["subfeddits"]:
+            for subfeddit_data in data["subfeddits"]:  # Access the subfeddits key
                 subfeddit = Subfeddit(
                     id=subfeddit_data["id"],
                     username=subfeddit_data["username"],
@@ -184,12 +187,17 @@ class FedditClient:
                     "skip": skip
                 }
             )
+            self.logger.info("Fetched response get_comments", response=response)
             response.raise_for_status()
-            data = await response.json()
+            data = response.json()
+            self.logger.info("Fetched data get_comments", data=data)
             
             # Convert API response to domain entities
             comments = []
-            for comment_data in data["comments"]:
+            # Check if data is a list or a dictionary with comments key
+            comment_data_list = data if isinstance(data, list) else data.get("comments", [])
+            
+            for comment_data in comment_data_list:
                 comment = Comment(
                     id=comment_data["id"],
                     subfeddit_id=subfeddit_id,

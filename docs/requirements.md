@@ -29,9 +29,8 @@ A microservice application that provides sentiment analysis for comments in Fedd
 ### Technology Stack
 - Language: Python
 - API Framework: FastAPI/Flask
-- Sentiment Analysis: NLTK/TextBlob/VADER
+- Sentiment Analysis: LLM OpenAI
 - Testing: pytest
-- Linting: flake8/black
 - Container: Docker
 
 ### API Endpoints
