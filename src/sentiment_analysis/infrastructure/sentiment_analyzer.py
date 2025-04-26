@@ -1,5 +1,5 @@
 """Sentiment analyzer using OpenAI's API."""
-from typing import List, Optional, Union
+from typing import List, Optional
 from openai import AsyncOpenAI, OpenAIError
 from pydantic import BaseModel, Field
 from sentiment_analysis.domain.entities.comment import Comment
