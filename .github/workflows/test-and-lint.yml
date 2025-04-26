@@ -24,6 +24,7 @@ jobs:
           uv sync
           uv pip install -e .
           uv pip install pytest pytest-cov flake8
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Lint with flake8
         run: |
           flake8 src tests
