@@ -87,15 +87,37 @@ class SentimentService:
                 limit=limit
             )
             
+            self.logger.info(
+                "Fetched comments before filtering",
+                comment_count=len(comments),
+                comment_timestamps=[c.created_at for c in comments]
+            )
+            
             # Filter comments by time range if specified
             if start_time or end_time:
-                comments = [
-                    comment for comment in comments
+                filtered_comments = []
+                for comment in comments:
+                    self.logger.debug(
+                        "Checking comment timestamp",
+                        comment_id=comment.id,
+                        created_at=comment.created_at,
+                        start_time=start_time,
+                        end_time=end_time,
+                        matches_start=not start_time or comment.created_at >= start_time,
+                        matches_end=not end_time or comment.created_at <= end_time
+                    )
                     if (
                         (not start_time or comment.created_at >= start_time) and
                         (not end_time or comment.created_at <= end_time)
-                    )
-                ]
+                    ):
+                        filtered_comments.append(comment)
+                comments = filtered_comments
+            
+            self.logger.info(
+                "Comments after filtering",
+                comment_count=len(comments),
+                comment_timestamps=[c.created_at for c in comments]
+            )
             
             if not comments:
                 self.logger.info("No comments found in time range")

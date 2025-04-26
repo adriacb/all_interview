@@ -27,11 +27,11 @@ class FedditClient:
 
     async def get_subfeddits(self, limit: int = 10, skip: int = 0) -> List[Subfeddit]:
         """Get a list of subfeddits.
-
+        
         Args:
             limit: Maximum number of subfeddits to return. Defaults to 10.
             skip: Number of subfeddits to skip. Defaults to 0.
-
+            
         Returns:
             List of Subfeddit objects.
 
@@ -71,6 +71,7 @@ class FedditClient:
                 "Successfully fetched subfeddits",
                 count=len(subfeddits)
             )
+            
             return subfeddits
         except httpx.HTTPError as e:
             self.logger.error(
@@ -159,12 +160,12 @@ class FedditClient:
         skip: int = 0
     ) -> List[Comment]:
         """Get comments for a specific subfeddit.
-
+        
         Args:
             subfeddit_id: ID of the subfeddit.
             limit: Maximum number of comments to return. Defaults to 25.
             skip: Number of comments to skip. Defaults to 0.
-
+            
         Returns:
             List of Comment objects.
 
@@ -196,12 +197,14 @@ class FedditClient:
             comment_data_list = data if isinstance(data, list) else data.get("comments", [])
             
             for comment_data in comment_data_list:
+                # Convert Unix timestamp to naive datetime
+                created_at = datetime.fromtimestamp(comment_data["created_at"])
                 comment = Comment(
                     id=comment_data["id"],
                     subfeddit_id=subfeddit_id,
                     username=comment_data["username"],
                     text=comment_data["text"],
-                    created_at=datetime.fromtimestamp(comment_data["created_at"])
+                    created_at=created_at
                 )
                 comments.append(comment)
             
@@ -209,6 +212,7 @@ class FedditClient:
                 "Successfully fetched comments",
                 count=len(comments)
             )
+            
             return comments
         except httpx.HTTPError as e:
             self.logger.error(

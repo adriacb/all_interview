@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
 
@@ -45,3 +45,11 @@ class SentimentAnalysisRequestDTO(BaseModel):
         default=False,
         description="Whether to sort results by sentiment score"
     )
+
+    @field_validator('start_time', 'end_time')
+    @classmethod
+    def ensure_naive_datetime(cls, v):
+        """Ensure datetime is naive (no timezone info)."""
+        if v is not None and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v

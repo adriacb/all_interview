@@ -16,7 +16,6 @@ def test_create_valid_comment():
         username="test_user",
         text="Test comment",
         created_at=now,
-        updated_at=now
     )
     
     assert comment.id == 1
@@ -24,7 +23,6 @@ def test_create_valid_comment():
     assert comment.username == "test_user"
     assert comment.text == "Test comment"
     assert comment.created_at == now
-    assert comment.updated_at == now
 
 
 def test_create_invalid_comment():
@@ -39,7 +37,6 @@ def test_create_invalid_comment():
             username="test_user",
             text="Test comment",
             created_at=now,
-            updated_at=now
         )
     
     # Test invalid subfeddit_id
@@ -50,7 +47,6 @@ def test_create_invalid_comment():
             username="test_user",
             text="Test comment",
             created_at=now,
-            updated_at=now
         )
     
     # Test invalid username
@@ -61,7 +57,6 @@ def test_create_invalid_comment():
             username="",  # Invalid: empty string
             text="Test comment",
             created_at=now,
-            updated_at=now
         )
     
     # Test invalid text
@@ -72,7 +67,6 @@ def test_create_invalid_comment():
             username="test_user",
             text="",  # Invalid: empty string
             created_at=now,
-            updated_at=now
         )
     
     # Test invalid datetime
@@ -82,6 +76,5 @@ def test_create_invalid_comment():
             subfeddit_id=2,
             username="test_user",
             text="Test comment",
-            created_at="invalid_datetime",  # Invalid: not a datetime
-            updated_at=now
+            created_at="invalid_datetime",  
         )

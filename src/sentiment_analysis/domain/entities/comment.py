@@ -13,7 +13,6 @@ class Comment(BaseModel):
     username: str = Field(min_length=1, description="Username of the comment author")
     text: str = Field(min_length=1, description="Content of the comment")
     created_at: datetime = Field(..., description="Creation timestamp")
-    updated_at: datetime | None = Field(default=None, description="Last update timestamp")
     
     @field_validator('id')
     @classmethod
@@ -39,21 +38,6 @@ class Comment(BaseModel):
             raise ValidationError("Field must not be empty")
         return v.strip()
     
-    @field_validator('created_at', 'updated_at')
-    @classmethod
-    def validate_datetime(cls, v):
-        """Validate that the value is a datetime."""
-        if v is None:
-            return None
-        if not isinstance(v, datetime):
-            raise ValidationError("must be a datetime")
-        return v
-    
-    def model_post_init(self, *args, **kwargs):
-        """Set updated_at to created_at if not provided."""
-        if self.updated_at is None:
-            self.updated_at = self.created_at
-    
     class Config:
         """Pydantic model configuration."""
         json_schema_extra = {
@@ -63,6 +47,5 @@ class Comment(BaseModel):
                 "username": "test_user",
                 "text": "This is a test comment",
                 "created_at": "2024-01-01T00:00:00",
-                "updated_at": "2024-01-01T00:00:00"
             }
         }

@@ -53,7 +53,6 @@ def mock_comment():
         username="user1",
         text="Positive comment",
         created_at=timestamp,
-        updated_at=timestamp
     )
 
 
