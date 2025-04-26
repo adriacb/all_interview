@@ -10,6 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      OPENAI_API_KEY: "test-api-key"
+      FAST_API_PORT: "8000"
       PRODUCTION: "true"
     steps:
       - uses: actions/checkout@v2
