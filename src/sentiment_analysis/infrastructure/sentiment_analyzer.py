@@ -2,7 +2,7 @@
 
 import os
 from typing import List, Optional
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, OpenAIError
 from pydantic import BaseModel, Field
 from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
@@ -25,9 +25,15 @@ class SentimentAnalyzer:
         
         Args:
             api_key: OpenAI API key. If not provided, will be loaded from environment.
+
+        Raises:
+            ValueError: If no API key is provided and OPENAI_API_KEY is not set.
         """
         self.api_key = api_key or OPENAI_API_KEY
-        self.client = AsyncOpenAI(api_key=self.api_key)
+        try:
+            self.client = AsyncOpenAI(api_key=self.api_key)
+        except OpenAIError as e:
+            raise ValueError("API key is required") from e
         self.logger = configure_logger().bind(service="sentiment_analyzer")
 
     async def analyze(self, comments: List[Comment]) -> List[SentimentAnalysis]:

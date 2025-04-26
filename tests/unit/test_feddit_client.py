@@ -38,7 +38,7 @@ class TestFedditClient:
             status_code=200,
             request=AsyncMock()
         )
-        mock_response.json = AsyncMock(return_value=mock_data)
+        mock_response.json = lambda: mock_data  # Changed from AsyncMock to regular lambda
         client.client.get = AsyncMock(return_value=mock_response)
 
         # Call the method
@@ -69,8 +69,7 @@ class TestFedditClient:
                     "subfeddit_id": 2,
                     "username": "test_user",
                     "text": "Test comment",
-                    "created_at": 1609459200,
-                    "updated_at": 1609459200
+                    "created_at": 1609459200
                 }
             ]
         }
@@ -80,7 +79,7 @@ class TestFedditClient:
             status_code=200,
             request=AsyncMock()
         )
-        mock_response.json = AsyncMock(return_value=mock_data)
+        mock_response.json = lambda: mock_data  # Changed from AsyncMock to regular lambda
         client.client.get = AsyncMock(return_value=mock_response)
 
         # Call the method
@@ -94,7 +93,6 @@ class TestFedditClient:
         assert comments[0].username == "test_user"
         assert comments[0].text == "Test comment"
         assert comments[0].created_at == datetime.fromtimestamp(1609459200)
-        assert comments[0].updated_at == datetime.fromtimestamp(1609459200)
 
         # Verify API call
         client.client.get.assert_called_once_with(

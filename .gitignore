@@ -49,3 +49,10 @@ uv.lock
 __pycache__/
 
 .env
+
+# coverage
+.coverage
+
+# pytest
+pytest.ini
+

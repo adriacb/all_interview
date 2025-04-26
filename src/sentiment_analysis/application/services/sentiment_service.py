@@ -1,6 +1,6 @@
 """Service for sentiment analysis operations."""
 
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 from sentiment_analysis.domain.entities.comment import Comment
@@ -28,18 +28,18 @@ class SentimentService:
         self,
         feddit_client: FedditClient,
         sentiment_analyzer: SentimentAnalyzer,
-        repository: SentimentAnalysisRepository
+        sentiment_analysis_repository: SentimentAnalysisRepository
     ):
         """Initialize the service.
         
         Args:
             feddit_client: Client for interacting with the Feddit API
             sentiment_analyzer: Analyzer for performing sentiment analysis
-            repository: Repository for storing sentiment analysis results
+            sentiment_analysis_repository: Repository for storing sentiment analysis results
         """
         self.feddit_client = feddit_client
         self.sentiment_analyzer = sentiment_analyzer
-        self.repository = repository
+        self.sentiment_analysis_repository = sentiment_analysis_repository
         self.logger = structlog.get_logger(__name__)
         
         # Initialize use cases
@@ -47,7 +47,7 @@ class SentimentService:
         self.fetch_comments = FetchCommentsUseCase(feddit_client)
         self.analyze_sentiment = AnalyzeSentimentUseCase(
             sentiment_analyzer=sentiment_analyzer,
-            sentiment_analysis_repository=repository
+            sentiment_analysis_repository=sentiment_analysis_repository
         )
 
     async def analyze_subfeddit_sentiment(
@@ -106,15 +106,19 @@ class SentimentService:
                     )
                 ]
             
-            # Perform sentiment analysis on filtered comments
+            if not comments:
+                self.logger.info("No comments found in time range")
+                return []
+            
+            # Analyze sentiment
             analyses = await self.sentiment_analyzer.analyze(comments)
             
             # Save analyses to repository
             for analysis in analyses:
-                await self.repository.save(analysis)
+                await self.sentiment_analysis_repository.save(analysis)
             
             self.logger.info(
-                "Completed subfeddit sentiment analysis",
+                "Successfully analyzed subfeddit sentiment",
                 subfeddit=subfeddit,
                 analysis_count=len(analyses)
             )
@@ -132,7 +136,7 @@ class SentimentService:
             # Log and re-raise other errors
             self.logger.error(
                 "Failed to analyze subfeddit sentiment",
-                subfeddit=subfeddit,
-                error=str(e)
+                error=str(e),
+                subfeddit=subfeddit
             )
             raise 

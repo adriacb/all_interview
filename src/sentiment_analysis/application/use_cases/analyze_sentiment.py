@@ -64,27 +64,12 @@ class AnalyzeSentimentUseCase:
             comment_count=len(comments)
         )
         try:
-            analyses = []
-            for comment in comments:
-                # Analyze sentiment
-                sentiment_score = await self.sentiment_analyzer.analyze(comment.text)
-                
-                # Get sentiment label
-                sentiment_label = self._get_sentiment_label(sentiment_score)
-                
-                # Create sentiment analysis
-                analysis = SentimentAnalysis(
-                    id=1,  # Temporary ID, will be replaced by repository
-                    comment_id=comment.id,
-                    subfeddit_id=comment.subfeddit_id,
-                    sentiment_score=sentiment_score,
-                    sentiment_label=sentiment_label,
-                    created_at=datetime.now()
-                )
-                
-                # Store analysis
-                analysis = await self.sentiment_analysis_repository.create(analysis)
-                analyses.append(analysis)
+            # Analyze sentiment for all comments
+            analyses = await self.sentiment_analyzer.analyze(comments)
+            
+            # Save analyses to repository
+            for analysis in analyses:
+                await self.sentiment_analysis_repository.save(analysis)
             
             self.logger.info(
                 "Successfully analyzed sentiment",

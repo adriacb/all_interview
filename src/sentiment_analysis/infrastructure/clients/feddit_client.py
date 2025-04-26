@@ -113,7 +113,7 @@ class FedditClient:
                 }
             )
             response.raise_for_status()
-            data = await response.json()
+            data = response.json()
             
             # Convert comments to domain entities
             comments = []
@@ -123,7 +123,7 @@ class FedditClient:
                     subfeddit_id=subfeddit_id,
                     username=comment_data["username"],
                     text=comment_data["text"],
-                    created_at=datetime.fromtimestamp(comment_data["created_at"]).isoformat()
+                    created_at=datetime.fromtimestamp(comment_data["created_at"])
                 )
                 comments.append(comment)
             
@@ -202,7 +202,7 @@ class FedditClient:
                     subfeddit_id=subfeddit_id,
                     username=comment_data["username"],
                     text=comment_data["text"],
-                    created_at=datetime.fromtimestamp(comment_data["created_at"]).isoformat()
+                    created_at=datetime.fromtimestamp(comment_data["created_at"])
                 )
                 comments.append(comment)
             

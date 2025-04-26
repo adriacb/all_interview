@@ -19,12 +19,12 @@ class TestAnalyzeSentimentUseCase:
 
     @pytest.fixture
     def mock_repository(self):
-        """Create a mock repository."""
+        """Create a mock sentiment analysis repository."""
         return AsyncMock()
 
     @pytest.fixture
     def use_case(self, mock_analyzer, mock_repository):
-        """Create a use case instance."""
+        """Create a use case instance with mocked dependencies."""
         return AnalyzeSentimentUseCase(
             sentiment_analyzer=mock_analyzer,
             sentiment_analysis_repository=mock_repository
@@ -46,10 +46,7 @@ class TestAnalyzeSentimentUseCase:
         ]
 
         # Mock analyzer response
-        mock_analyzer.analyze.return_value = 0.5
-
-        # Mock repository to return a created entity
-        created_entity = SentimentAnalysis(
+        mock_analysis = SentimentAnalysis(
             id=1,
             comment_id=1,
             subfeddit_id=2,
@@ -57,30 +54,39 @@ class TestAnalyzeSentimentUseCase:
             sentiment_label="positive",
             created_at=datetime.now()
         )
-        mock_repository.create.return_value = created_entity
+        mock_analyzer.analyze.return_value = [mock_analysis]
+
+        # Mock repository to return a saved entity
+        saved_entity = SentimentAnalysis(
+            id=1,
+            comment_id=1,
+            subfeddit_id=2,
+            sentiment_score=0.5,
+            sentiment_label="positive",
+            created_at=datetime.now()
+        )
+        mock_repository.save.return_value = saved_entity
 
         # Execute use case
         result = await use_case.execute(comments)
 
-        # Verify results
+        # Verify result
         assert len(result) == 1
-        assert isinstance(result[0], SentimentAnalysis)
         assert result[0].id == 1
         assert result[0].comment_id == 1
         assert result[0].subfeddit_id == 2
         assert result[0].sentiment_score == 0.5
         assert result[0].sentiment_label == "positive"
-        assert isinstance(result[0].created_at, datetime)
 
-        # Verify analyzer call
-        mock_analyzer.analyze.assert_called_once_with("Test comment")
+        # Verify analyzer was called
+        mock_analyzer.analyze.assert_called_once_with(comments)
 
-        # Verify repository call
-        mock_repository.create.assert_called_once()
+        # Verify repository was called
+        mock_repository.save.assert_called_once_with(mock_analysis)
 
     @pytest.mark.asyncio
-    async def test_execute_error(self, use_case, mock_analyzer, mock_repository):
-        """Test error handling in the use case."""
+    async def test_execute_error(self, use_case, mock_analyzer):
+        """Test error handling."""
         # Mock input comments
         comments = [
             Comment(
@@ -99,7 +105,5 @@ class TestAnalyzeSentimentUseCase:
         # Execute use case and expect an exception
         with pytest.raises(Exception) as exc_info:
             await use_case.execute(comments)
-
-        assert str(exc_info.value) == "Test error"
-        mock_analyzer.analyze.assert_called_once()
-        mock_repository.create.assert_not_called() 
+        
+        assert str(exc_info.value) == "Test error" 

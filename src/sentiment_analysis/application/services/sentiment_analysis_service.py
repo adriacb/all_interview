@@ -125,14 +125,15 @@ class SentimentAnalysisService:
             subfeddit_id=comment.subfeddit_id
         )
         
-        analysis = await self._analyze_sentiment_use_case.execute(comment)
+        analyses = await self._analyze_sentiment_use_case.execute([comment])
+        analysis = analyses[0]  # Get the first (and only) analysis
         
         self._logger.info(
             "Completed comment analysis",
             comment_id=comment.id,
             subfeddit_id=comment.subfeddit_id,
-            sentiment_type=analysis.sentiment_type.value,
-            confidence_score=analysis.confidence_score
+            sentiment_score=analysis.sentiment_score,
+            sentiment_label=analysis.sentiment_label
         )
         
         return analysis 

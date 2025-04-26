@@ -26,11 +26,11 @@ def get_sentiment_analysis_repository() -> SentimentAnalysisRepository:
 def get_sentiment_service(
     feddit_client: FedditClient = Depends(get_feddit_client),
     sentiment_analyzer: SentimentAnalyzer = Depends(get_sentiment_analyzer),
-    repository: SentimentAnalysisRepository = Depends(get_sentiment_analysis_repository)
+    sentiment_analysis_repository: SentimentAnalysisRepository = Depends(get_sentiment_analysis_repository)
 ) -> SentimentService:
     """Get SentimentService instance with dependencies."""
     return SentimentService(
         feddit_client=feddit_client,
         sentiment_analyzer=sentiment_analyzer,
-        repository=repository
+        sentiment_analysis_repository=sentiment_analysis_repository
     ) 

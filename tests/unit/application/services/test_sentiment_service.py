@@ -31,7 +31,6 @@ def mock_sentiment_analyzer():
 def mock_repository():
     """Create a mock SentimentAnalysisRepository."""
     repository = AsyncMock(spec=SentimentAnalysisRepository)
-    repository.save = AsyncMock()  # Explicitly add the save method
     return repository
 
 
@@ -41,7 +40,7 @@ def sentiment_service(mock_feddit_client, mock_sentiment_analyzer, mock_reposito
     return SentimentService(
         feddit_client=mock_feddit_client,
         sentiment_analyzer=mock_sentiment_analyzer,
-        repository=mock_repository
+        sentiment_analysis_repository=mock_repository
     )
 
 
@@ -72,7 +71,7 @@ class TestSentimentService:
         )
         mock_feddit_client.get_subfeddits.return_value = [mock_subfeddit]
         
-        # Mock subfeddit details response
+        # Mock comments response
         timestamp = datetime(2024, 1, 1, 12)
         mock_comment = Comment(
             id=1,
@@ -82,10 +81,7 @@ class TestSentimentService:
             created_at=timestamp,
             updated_at=timestamp
         )
-        mock_feddit_client.get_subfeddit.return_value = {
-            "subfeddit": mock_subfeddit,
-            "comments": [mock_comment]
-        }
+        mock_feddit_client.get_comments.return_value = [mock_comment]
         
         # Mock sentiment analyses
         mock_analyses = [
@@ -111,18 +107,11 @@ class TestSentimentService:
         # Assert
         assert result == mock_analyses
         mock_feddit_client.get_subfeddits.assert_called_once_with(limit=10, skip=0)
-        mock_feddit_client.get_subfeddit.assert_called_once_with(
+        mock_feddit_client.get_comments.assert_called_once_with(
             subfeddit_id=1,
             limit=limit
         )
-        
-        # Verify the comments passed to analyze match the expected format
-        analyze_call_args = mock_sentiment_analyzer.analyze.call_args[0][0]
-        assert len(analyze_call_args) == 1
-        assert analyze_call_args[0].id == 1
-        assert analyze_call_args[0].username == "user1"
-        assert analyze_call_args[0].text == "Positive comment"
-        assert analyze_call_args[0].created_at == timestamp
+        mock_sentiment_analyzer.analyze.assert_called_once_with([mock_comment])
         mock_repository.save.assert_called_once_with(mock_analyses[0])
 
     @pytest.mark.asyncio
@@ -143,7 +132,7 @@ class TestSentimentService:
             await sentiment_service.analyze_subfeddit_sentiment(subfeddit=subfeddit_name)
         
         mock_feddit_client.get_subfeddits.assert_called_once_with(limit=10, skip=0)
-        mock_feddit_client.get_subfeddit.assert_not_called()
+        mock_feddit_client.get_comments.assert_not_called()
         mock_sentiment_analyzer.analyze.assert_not_called()
         mock_repository.save.assert_not_called()
 
@@ -165,6 +154,6 @@ class TestSentimentService:
             await sentiment_service.analyze_subfeddit_sentiment(subfeddit=subfeddit_name)
         
         mock_feddit_client.get_subfeddits.assert_called_once_with(limit=10, skip=0)
-        mock_feddit_client.get_subfeddit.assert_not_called()
+        mock_feddit_client.get_comments.assert_not_called()
         mock_sentiment_analyzer.analyze.assert_not_called()
         mock_repository.save.assert_not_called() 
