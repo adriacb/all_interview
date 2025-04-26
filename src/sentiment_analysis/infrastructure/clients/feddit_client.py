@@ -187,10 +187,9 @@ class FedditClient:
                     "skip": skip
                 }
             )
-            self.logger.info("Fetched response get_comments", response=response)
             response.raise_for_status()
             data = response.json()
-            self.logger.info("Fetched data get_comments", data=data)
+            self.logger.debug("Fetched data get_comments", data=data)
             
             # Convert API response to domain entities
             comments = []

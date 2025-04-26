@@ -1,3 +1,135 @@
+# Sentiment Analysis Microservice for Feddit
+
+A microservice that provides sentiment analysis for comments in Feddit (fake Reddit) subfeddits through a RESTful API.
+
+## Features
+
+- Sentiment analysis of Feddit comments using OpenAI's GPT-4o mini
+- RESTful API endpoints for accessing sentiment analysis results
+- Time range filtering for comments
+- Sorting by polarity score
+- Pagination support
+- Comprehensive error handling
+
+## Prerequisites
+
+- Python 3.8+
+- OpenAI API key
+- Access to Feddit API (running on port 8080)
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd sentiment-analysis
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -e .
+```
+
+4. Set up environment variables:
+```bash
+export OPENAI_API_KEY=your_api_key  # On Windows: set OPENAI_API_KEY=your_api_key
+```
+
+## Usage
+
+1. Start the service:
+```bash
+python -m sentiment_analysis.api.run
+```
+
+2. The API will be available at `http://localhost:8000`
+
+## API Documentation
+
+### Get Sentiment Analysis for Subfeddit Comments
+
+```
+GET /api/v1/sentiment/{subfeddit}
+```
+
+Retrieves sentiment analysis for the most recent comments in a subfeddit.
+
+#### Query Parameters
+
+- `limit` (optional): Number of comments to return (default: 25)
+- `skip` (optional): Number of comments to skip (default: 0)
+- `start_time` (optional): Unix timestamp for filtering comments from this time
+- `end_time` (optional): Unix timestamp for filtering comments until this time
+- `sort_by` (optional): Sort results by "polarity" (default: chronological)
+
+#### Response
+
+```json
+{
+  "comments": [
+    {
+      "id": "string",
+      "text": "string",
+      "polarity_score": float,
+      "classification": "positive" | "negative"
+    }
+  ],
+  "metadata": {
+    "limit": 25,
+    "skip": 0,
+    "total": 100
+  }
+}
+```
+
+## Development
+
+### Project Structure
+
+```
+sentiment-analysis/
+├── src/
+│   └── sentiment_analysis/
+│       ├── api/              # FastAPI application
+│       ├── application/      # Business logic
+│       ├── domain/           # Domain models
+│       └── infrastructure/   # External services and repositories
+├── tests/                    # Test suite
+└── docs/                     # Documentation
+```
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+### Code Style
+
+This project follows PEP 8 style guidelines. Use the following tools for code quality:
+
+```bash
+# Run linter
+flake8 src/ tests/
+
+# Run type checking
+mypy src/ tests/
+```
+
+## License
+
+[Your License Here]
+
+## Contributing
+
+[Your Contribution Guidelines Here]
+
 # Introduction
 The `docker-compose.yml` file provides access to `Feddit` which is a fake reddit API built to complete the Allianz challenge. 
 
