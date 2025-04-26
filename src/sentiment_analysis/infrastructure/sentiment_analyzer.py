@@ -1,12 +1,13 @@
 """Sentiment analyzer using OpenAI's API."""
-from typing import List, Optional
+from typing import List, Optional, Union
 from openai import AsyncOpenAI, OpenAIError
 from pydantic import BaseModel, Field
 from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
 from sentiment_analysis.logger import configure_logger
-from sentiment_analysis.config import OPENAI_API_KEY
+from sentiment_analysis.config import OPENAI_API_KEY, SENTIMENT_ANALYSIS_BATCH_SIZE
 from datetime import datetime
+import asyncio
 
 logger = configure_logger().bind(service="sentiment_analyzer")
 
@@ -47,59 +48,102 @@ class SentimentAnalyzer:
 
         Raises:
             Exception: If sentiment analysis fails.
+            ValueError: If the API response is invalid.
         """
         self.logger.info(
-            "Analyzing sentiment for comments",
-            comment_count=len(comments)
+            "Starting batch processing of comments",
+            total_comments=len(comments),
+            batch_size=SENTIMENT_ANALYSIS_BATCH_SIZE
         )
         
-        analyses = []
-        for comment in comments:
-            try:
-                response = await self.client.responses.parse(
-                    model="gpt-4o-mini",
-                    input=[
-                        {
-                            "role": "system",
-                            "content": "You are a sentiment analyst professional. Analyze the following text and return a single number between -1.0 and 1.0, where -1.0 is extremely negative, 0.0 is neutral, and 1.0 is extremely positive.",
-                        },
-                        {"role": "user", "content": comment.text},
-                    ],
-                    text_format=OutputFormat
-                )
-                output = response.output_parsed
-                self.logger.info("Response from OpenAI", parsed_response=output)
-
-                score = output.sentiment_score
-                label = output.sentiment_label
-
-                # Create sentiment analysis
-                analysis = SentimentAnalysis(
-                    id=comment.id,  # Use comment ID as analysis ID
-                    comment_id=comment.id,
-                    subfeddit_id=comment.subfeddit_id,
-                    sentiment_score=score,
-                    sentiment_label=label,
-                    created_at=datetime.now()
-                )
-                
-                analyses.append(analysis)
-                self.logger.info(
-                    "Successfully analyzed comment",
-                    comment_id=comment.id,
-                    sentiment_score=analysis.sentiment_score,
-                    sentiment_label=analysis.sentiment_label
-                )
-            except Exception as e:
-                self.logger.error(
-                    "Failed to analyze comment",
-                    error=str(e),
-                    comment_id=comment.id
-                )
-                raise
+        all_analyses = []
+        
+        # Process comments in batches
+        for i in range(0, len(comments), SENTIMENT_ANALYSIS_BATCH_SIZE):
+            batch = comments[i:i + SENTIMENT_ANALYSIS_BATCH_SIZE]
+            self.logger.info(
+                "Processing batch",
+                batch_number=i // SENTIMENT_ANALYSIS_BATCH_SIZE + 1,
+                batch_size=len(batch)
+            )
+            
+            # Create tasks for this batch
+            batch_tasks = [
+                self._analyze_single_comment(comment)
+                for comment in batch
+            ]
+            
+            # Process this batch in parallel
+            batch_analyses = await asyncio.gather(*batch_tasks, return_exceptions=True)
+            
+            # Handle results from this batch
+            for analysis, comment in zip(batch_analyses, batch):
+                if isinstance(analysis, Exception):
+                    # Re-raise the first exception we encounter
+                    raise analysis
+                all_analyses.append(analysis)
+                    
+            self.logger.info(
+                "Processed batch of comments",
+                batch_size=len(batch),
+                successful_analyses=len(batch)
+            )
         
         self.logger.info(
             "Successfully analyzed all comments",
-            analysis_count=len(analyses)
+            total_analyses=len(all_analyses)
         )
-        return analyses
+        return all_analyses
+
+    async def _analyze_single_comment(self, comment: Comment) -> SentimentAnalysis:
+        """Analyze a single comment.
+        
+        Args:
+            comment: The comment to analyze.
+            
+        Returns:
+            SentimentAnalysis object.
+            
+        Raises:
+            Exception: If sentiment analysis fails.
+            ValueError: If the API response is invalid.
+        """
+        try:
+            response = await self.client.responses.parse(
+                model="gpt-4o-mini",
+                input=[
+                    {
+                        "role": "system",
+                        "content": "You are a sentiment analyst professional. Analyze the following text and return a single number between -1.0 and 1.0, where -1.0 is extremely negative, 0.0 is neutral, and 1.0 is extremely positive.",
+                    },
+                    {"role": "user", "content": comment.text},
+                ],
+                text_format=OutputFormat
+            )
+            output = response.output_parsed
+            self.logger.debug("Response from OpenAI", parsed_response=output)
+
+            # Create sentiment analysis
+            analysis = SentimentAnalysis(
+                id=comment.id,  # Use comment ID as analysis ID
+                comment_id=comment.id,
+                subfeddit_id=comment.subfeddit_id,
+                sentiment_score=output.sentiment_score,
+                sentiment_label=output.sentiment_label,
+                created_at=datetime.now()
+            )
+            
+            self.logger.debug(
+                "Successfully analyzed comment",
+                comment_id=comment.id,
+                sentiment_score=analysis.sentiment_score,
+                sentiment_label=analysis.sentiment_label
+            )
+            return analysis
+        except Exception as e:
+            self.logger.error(
+                "Failed to analyze comment",
+                error=str(e),
+                comment_id=comment.id
+            )
+            raise

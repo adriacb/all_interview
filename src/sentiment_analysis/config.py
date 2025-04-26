@@ -15,6 +15,7 @@ if not os.getenv("PRODUCTION"):
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 FAST_API_PORT = int(os.getenv("FAST_API_PORT", "8000"))
 FEDDIT_API_URL = os.getenv("FEDDIT_API_URL", "http://localhost:8080")
+SENTIMENT_ANALYSIS_BATCH_SIZE = int(os.getenv("SENTIMENT_ANALYSIS_BATCH_SIZE", "10"))
 
 # Validate required environment variables
 if not OPENAI_API_KEY:
