@@ -76,5 +76,5 @@ def test_create_invalid_comment():
             subfeddit_id=2,
             username="test_user",
             text="Test comment",
-            created_at="invalid_datetime",  
+            created_at="invalid_datetime",
         )
