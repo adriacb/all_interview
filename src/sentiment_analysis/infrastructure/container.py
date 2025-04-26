@@ -8,16 +8,17 @@ from sentiment_analysis.application.use_cases.fetch_subfeddits import FetchSubfe
 from sentiment_analysis.application.use_cases.fetch_comments import FetchCommentsUseCase
 from sentiment_analysis.application.use_cases.analyze_sentiment import AnalyzeSentimentUseCase
 from sentiment_analysis.application.services.sentiment_analysis_service import SentimentAnalysisService
+from sentiment_analysis.config import FEDDIT_API_URL
 
 
 class Container:
     """Dependency injection container."""
     
-    def __init__(self, base_url: str = "http://0.0.0.0:8080"):
+    def __init__(self, base_url: str = FEDDIT_API_URL):
         """Initialize the container.
         
         Args:
-            base_url: Base URL of the Feddit API
+            base_url: Base URL of the Feddit API. Defaults to FEDDIT_API_URL from config.
         """
         self._base_url = base_url
         self._feddit_client = None

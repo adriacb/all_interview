@@ -26,28 +26,7 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     links:
       - "db:db"
     depends_on:
       - db
-  sentiment-analysis:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      PRODUCTION: "true"
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      FAST_API_PORT: 8000
-      FEDDIT_API_URL: http://feddit:8080
-    ports:
-      - "8000:8000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      - feddit
-      - db
-

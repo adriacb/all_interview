@@ -68,3 +68,9 @@ async def analyze_subfeddit_sentiment(
             error=str(e)
         )
         raise HTTPException(status_code=500, detail=f"Error analyzing sentiment: {str(e)}") 
+    
+@router.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "Ok"}
+

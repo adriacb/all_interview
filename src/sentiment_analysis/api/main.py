@@ -29,11 +29,6 @@ app.add_middleware(
 # Include routers
 app.include_router(router)
 
-# Add health check endpoint
-@app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=FAST_API_PORT, reload=True) 

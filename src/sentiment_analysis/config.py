@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 # Get the root directory (where .env is located)
 ROOT_DIR = Path(__file__).parent.parent.parent
 
-# Load environment variables from .env file in root directory
-load_dotenv(dotenv_path=ROOT_DIR / ".env")
+# Load environment variables from .env file in root directory if not in production
+if not os.getenv("PRODUCTION"):
+    load_dotenv(dotenv_path=ROOT_DIR / ".env")
 
 # API Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
