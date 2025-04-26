@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
+      - name: Debug Docker Hub credentials
+        run: |
+          echo "Docker Hub username: ${{ secrets.DOCKERHUB_USERNAME }}"
+          echo "Docker Hub token length: ${#DOCKERHUB_TOKEN}"
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       
@@ -21,6 +26,15 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: https://index.docker.io/v1/
+      
+      - name: Build image
+        run: |
+          docker build -t ${{ env.DOCKER_IMAGE }}:latest .
+      
+      - name: Test image
+        run: |
+          docker run --rm ${{ env.DOCKER_IMAGE }}:latest python -c "import sentiment_analysis; print('Successfully imported sentiment_analysis')"
       
       - name: Extract metadata for Docker
         id: meta
@@ -34,7 +48,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=short
       
-      - name: Build and push
+      - name: Push to Docker Hub
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -42,8 +56,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
-      
-      - name: Test the built image
-        run: |
-          docker run --rm ${{ env.DOCKER_IMAGE }}:latest python -c "import sentiment_analysis; print('Successfully imported sentiment_analysis')" 
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max 
