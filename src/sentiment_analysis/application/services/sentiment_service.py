@@ -1,29 +1,20 @@
 """Service for sentiment analysis operations."""
-
-from typing import List, Optional
+import structlog
+from typing import List
 from datetime import datetime
-
-from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
-from sentiment_analysis.domain.entities.subfeddit import Subfeddit
 from sentiment_analysis.domain.repositories.sentiment_analysis_repository import SentimentAnalysisRepository
 from sentiment_analysis.infrastructure.clients.feddit_client import FedditClient
 from sentiment_analysis.infrastructure.sentiment_analyzer import SentimentAnalyzer
 from sentiment_analysis.application.use_cases.fetch_subfeddits import FetchSubfedditsUseCase
 from sentiment_analysis.application.use_cases.fetch_comments import FetchCommentsUseCase
 from sentiment_analysis.application.use_cases.analyze_sentiment import AnalyzeSentimentUseCase
-from sentiment_analysis.logger import configure_logger
-
-import structlog
 
 
 class SentimentService:
     """Service for sentiment analysis operations.
-    
     This service orchestrates the use cases for fetching subfeddits,
-    fetching comments, and analyzing sentiment.
-    """
-
+    fetching comments, and analyzing sentiment."""
     def __init__(
         self,
         feddit_client: FedditClient,
@@ -139,4 +130,4 @@ class SentimentService:
                 error=str(e),
                 subfeddit=subfeddit
             )
-            raise 
+            raise

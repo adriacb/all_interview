@@ -1,1 +1,1 @@
-"""Unit tests package for sentiment analysis microservice.""" 
+"""Unit tests package for sentiment analysis microservice."""

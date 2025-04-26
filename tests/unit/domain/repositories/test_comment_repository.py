@@ -98,4 +98,4 @@ class TestCommentRepository:
         comments = await repo.get_comments(subfeddit_id=1, limit=5, skip=5)
         assert len(comments) == 5
         assert comments[0].id == 6
-        assert comments[-1].id == 10 
+        assert comments[-1].id == 10

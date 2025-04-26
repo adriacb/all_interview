@@ -1,7 +1,5 @@
 """SentimentAnalysisService implementation."""
-
 import asyncio
-from typing import List
 
 from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.entities.subfeddit import Subfeddit
@@ -136,4 +134,4 @@ class SentimentAnalysisService:
             sentiment_label=analysis.sentiment_label
         )
         
-        return analysis 
+        return analysis

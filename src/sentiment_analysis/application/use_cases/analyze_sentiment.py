@@ -1,7 +1,5 @@
 """Use case for analyzing sentiment of comments."""
-
 from typing import List
-from datetime import datetime
 
 from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
@@ -81,4 +79,4 @@ class AnalyzeSentimentUseCase:
                 "Failed to analyze sentiment",
                 error=str(e)
             )
-            raise 
+            raise

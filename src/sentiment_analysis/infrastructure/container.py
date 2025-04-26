@@ -103,4 +103,4 @@ class Container:
     async def close(self):
         """Close all resources."""
         if self._feddit_client is not None:
-            await self._feddit_client.close() 
+            await self._feddit_client.close()

@@ -38,4 +38,4 @@ class CommentRepository(ABC):
         Returns:
             Comment entity if found, None otherwise
         """
-        pass 
+        pass

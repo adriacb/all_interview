@@ -81,4 +81,4 @@ class SentimentAnalysisRepository(ABC):
         Returns:
             List of sentiment analyses
         """
-        pass 
+        pass

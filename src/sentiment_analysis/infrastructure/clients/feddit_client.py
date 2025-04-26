@@ -1,6 +1,5 @@
 """Client for interacting with the Feddit API."""
-
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 import httpx
 from datetime import datetime
 
@@ -222,4 +221,4 @@ class FedditClient:
     async def close(self):
         """Close the HTTP client."""
         await self.client.aclose()
-        self.logger.info("Feddit client closed") 
+        self.logger.info("Feddit client closed")

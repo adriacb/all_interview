@@ -57,4 +57,4 @@ def test_create_invalid_subfeddit():
             username="test_user",
             title="Test Title",
             description=123  # Invalid: not a string
-        ) 
+        )

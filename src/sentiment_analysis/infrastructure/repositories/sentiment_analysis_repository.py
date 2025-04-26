@@ -1,5 +1,4 @@
 """Implementation of the sentiment analysis repository."""
-
 from datetime import datetime
 from typing import List, Optional
 
@@ -94,4 +93,4 @@ class SentimentAnalysisRepository(SentimentAnalysisRepositoryInterface):
             and (not start_time or analysis.created_at >= start_time)
             and (not end_time or analysis.created_at <= end_time)
         ]
-        return sorted(filtered, key=lambda x: x.created_at, reverse=True)[:limit] 
+        return sorted(filtered, key=lambda x: x.created_at, reverse=True)[:limit]

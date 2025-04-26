@@ -1,6 +1,4 @@
 """Sentiment analyzer using OpenAI's API."""
-
-import os
 from typing import List, Optional
 from openai import AsyncOpenAI, OpenAIError
 from pydantic import BaseModel, Field
@@ -12,10 +10,12 @@ from datetime import datetime
 
 logger = configure_logger().bind(service="sentiment_analyzer")
 
+
 class OutputFormat(BaseModel):
     """Output format for the sentiment analysis."""
     sentiment_score: float = Field(description="The sentiment score of the comment, between -1.0 and 1.0")
     sentiment_label: str = Field(description="The sentiment label of the comment, either 'positive' or 'negative'")
+
 
 class SentimentAnalyzer:
     """Analyzes sentiment of comments using OpenAI's API."""
@@ -102,4 +102,4 @@ class SentimentAnalyzer:
             "Successfully analyzed all comments",
             analysis_count=len(analyses)
         )
-        return analyses 
+        return analyses

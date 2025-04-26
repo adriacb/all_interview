@@ -1,7 +1,6 @@
 """Tests for FedditClient."""
-
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 from datetime import datetime
 from httpx import Response, RequestError
 
@@ -153,4 +152,4 @@ class TestFedditClient:
         """Test client close method."""
         client.client.aclose = AsyncMock()
         await client.close()
-        client.client.aclose.assert_called_once() 
+        client.client.aclose.assert_called_once()

@@ -62,4 +62,4 @@ class FedditSubfedditRepository(SubfedditRepository):
             description=subfeddit.description,
             created_at=subfeddit.created_at,
             updated_at=subfeddit.updated_at
-        ) 
+        )

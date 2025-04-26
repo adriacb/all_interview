@@ -68,4 +68,4 @@ class MemorySentimentAnalysisRepository(SentimentAnalysisRepository):
             List of SentimentAnalysis entities
         """
         # TODO: Implement this when we have a way to get comment IDs by subfeddit
-        return [] 
+        return []

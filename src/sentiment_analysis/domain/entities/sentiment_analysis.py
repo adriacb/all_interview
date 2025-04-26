@@ -40,4 +40,4 @@ class SentimentAnalysis(BaseModel):
         """Validate that the value is a datetime."""
         if not isinstance(v, datetime):
             raise ValidationError("must be a datetime")
-        return v 
+        return v

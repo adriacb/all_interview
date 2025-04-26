@@ -4,7 +4,7 @@ import os
 import pytest
 from datetime import datetime
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 import httpx
 
 from sentiment_analysis.api.main import app

@@ -61,4 +61,4 @@ class FedditCommentRepository(CommentRepository):
             Comment entity if found, None otherwise
         """
         # TODO: Implement this when the API supports it
-        return None 
+        return None

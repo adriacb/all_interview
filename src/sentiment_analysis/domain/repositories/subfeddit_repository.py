@@ -32,4 +32,4 @@ class SubfedditRepository(ABC):
         Returns:
             Subfeddit entity if found, None otherwise
         """
-        pass 
+        pass

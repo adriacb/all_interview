@@ -1,7 +1,4 @@
 """API routes for the sentiment analysis microservice."""
-
-from datetime import datetime
-from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 
 from sentiment_analysis.application.services.sentiment_service import SentimentService
@@ -67,10 +64,10 @@ async def analyze_subfeddit_sentiment(
             subfeddit=subfeddit,
             error=str(e)
         )
-        raise HTTPException(status_code=500, detail=f"Error analyzing sentiment: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Error analyzing sentiment: {str(e)}")
     
+
 @router.get("/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "Ok"}
-

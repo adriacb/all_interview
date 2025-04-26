@@ -44,4 +44,4 @@ class SentimentAnalysisRequestDTO(BaseModel):
     sort_by_score: bool = Field(
         default=False,
         description="Whether to sort results by sentiment score"
-    ) 
+    )

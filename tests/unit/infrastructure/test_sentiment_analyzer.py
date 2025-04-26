@@ -107,4 +107,4 @@ class TestSentimentAnalyzer:
              patch('sentiment_analysis.infrastructure.sentiment_analyzer.AsyncOpenAI', MockAsyncOpenAI):
             # Expect an exception
             with pytest.raises(ValueError, match="API key is required"):
-                SentimentAnalyzer() 
+                SentimentAnalyzer()

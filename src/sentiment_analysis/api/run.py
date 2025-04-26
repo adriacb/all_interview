@@ -3,6 +3,7 @@
 import uvicorn
 from sentiment_analysis.api.main import app
 
+app = app
 
 if __name__ == "__main__":
     uvicorn.run(
@@ -10,4 +11,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True
-    ) 
+    )

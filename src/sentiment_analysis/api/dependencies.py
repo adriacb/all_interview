@@ -33,4 +33,4 @@ def get_sentiment_service(
         feddit_client=feddit_client,
         sentiment_analyzer=sentiment_analyzer,
         sentiment_analysis_repository=sentiment_analysis_repository
-    ) 
+    )

@@ -1,7 +1,5 @@
 """Use case for fetching comments."""
-
 from typing import List
-from datetime import datetime
 
 from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.repositories.comment_repository import CommentRepository
@@ -64,4 +62,4 @@ class FetchCommentsUseCase:
                 "Failed to fetch comments",
                 error=str(e)
             )
-            raise 
+            raise

@@ -1,7 +1,7 @@
 """Tests for FetchCommentsUseCase."""
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 from datetime import datetime
 
 from sentiment_analysis.application.use_cases.fetch_comments import FetchCommentsUseCase
@@ -66,4 +66,4 @@ class TestFetchCommentsUseCase:
             await use_case.execute(subfeddit_id=2)
 
         assert str(exc_info.value) == "Test error"
-        mock_repository.get_comments.assert_called_once() 
+        mock_repository.get_comments.assert_called_once()

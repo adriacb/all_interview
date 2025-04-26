@@ -1,7 +1,7 @@
 """Tests for AnalyzeSentimentUseCase."""
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 from datetime import datetime
 
 from sentiment_analysis.application.use_cases.analyze_sentiment import AnalyzeSentimentUseCase
@@ -106,4 +106,4 @@ class TestAnalyzeSentimentUseCase:
         with pytest.raises(Exception) as exc_info:
             await use_case.execute(comments)
         
-        assert str(exc_info.value) == "Test error" 
+        assert str(exc_info.value) == "Test error"

@@ -1,7 +1,7 @@
 """Tests for FetchSubfedditsUseCase."""
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 from datetime import datetime
 
 from sentiment_analysis.application.use_cases.fetch_subfeddits import FetchSubfedditsUseCase
@@ -65,4 +65,4 @@ class TestFetchSubfedditsUseCase:
             await use_case.execute()
 
         assert str(exc_info.value) == "Test error"
-        mock_repository.get_subfeddits.assert_called_once() 
+        mock_repository.get_subfeddits.assert_called_once()

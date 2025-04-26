@@ -74,4 +74,4 @@ class TestSubfedditRepository:
         subfeddits = await repo.get_subfeddits(limit=5, skip=5)
         assert len(subfeddits) == 5
         assert subfeddits[0].id == 6
-        assert subfeddits[-1].id == 10 
+        assert subfeddits[-1].id == 10

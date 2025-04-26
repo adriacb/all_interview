@@ -2,7 +2,7 @@
 
 import pytest
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 from sentiment_analysis.application.services.sentiment_service import SentimentService
 from sentiment_analysis.domain.entities.comment import Comment
@@ -156,4 +156,4 @@ class TestSentimentService:
         mock_feddit_client.get_subfeddits.assert_called_once_with(limit=10, skip=0)
         mock_feddit_client.get_comments.assert_not_called()
         mock_sentiment_analyzer.analyze.assert_not_called()
-        mock_repository.save.assert_not_called() 
+        mock_repository.save.assert_not_called()

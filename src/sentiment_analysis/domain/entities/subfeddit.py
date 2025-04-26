@@ -45,4 +45,4 @@ class Subfeddit(BaseModel):
                 "title": "Test Subfeddit",
                 "description": "A test subfeddit"
             }
-        } 
+        }

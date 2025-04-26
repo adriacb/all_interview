@@ -1,8 +1,6 @@
 """Logger configuration for the sentiment analysis microservice."""
-
 import logging
 import sys
-from typing import Any
 
 import structlog
 
@@ -34,4 +32,4 @@ def configure_logger() -> structlog.BoundLogger:
         level=logging.INFO,
     )
 
-    return structlog.get_logger() 
+    return structlog.get_logger()

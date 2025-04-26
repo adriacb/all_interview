@@ -18,4 +18,4 @@ FEDDIT_API_URL = os.getenv("FEDDIT_API_URL", "http://localhost:8080")
 
 # Validate required environment variables
 if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY environment variable is required") 
+    raise ValueError("OPENAI_API_KEY environment variable is required")

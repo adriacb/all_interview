@@ -124,4 +124,4 @@ def test_create_invalid_datetime():
             sentiment_score=0.5,
             sentiment_label="positive",
             created_at="invalid"  # Invalid datetime
-        ) 
+        )

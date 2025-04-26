@@ -1,7 +1,5 @@
 """Use case for fetching subfeddits."""
-
 from typing import List
-from datetime import datetime
 
 from sentiment_analysis.domain.entities.subfeddit import Subfeddit
 from sentiment_analysis.domain.repositories.subfeddit_repository import SubfedditRepository
@@ -56,4 +54,4 @@ class FetchSubfedditsUseCase:
                 "Failed to fetch subfeddits",
                 error=str(e)
             )
-            raise 
+            raise
