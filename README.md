@@ -13,7 +13,7 @@ A microservice that provides sentiment analysis for comments in Feddit (fake Red
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.12
 - OpenAI API key
 - Access to Feddit API (running on port 8080)
 
@@ -27,25 +27,29 @@ cd sentiment-analysis
 
 2. Create and activate a virtual environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+uv venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
 3. Install dependencies:
 ```bash
-pip install -e .
+uv sync
 ```
 
-4. Set up environment variables:
+4. Set up environment variables in .env file
 ```bash
-export OPENAI_API_KEY=your_api_key  # On Windows: set OPENAI_API_KEY=your_api_key
+# OpenAI settings
+OPENAI_API_KEY=sk-proj-***
+
+# App
+FAST_API_PORT=8000
 ```
 
 ## Usage
 
 1. Start the service:
 ```bash
-python -m sentiment_analysis.api.run
+uv run python -m sentiment_analysis.api.run
 ```
 
 2. The API will be available at `http://localhost:8000`
@@ -116,10 +120,7 @@ This project follows PEP 8 style guidelines. Use the following tools for code qu
 
 ```bash
 # Run linter
-flake8 src/ tests/
-
-# Run type checking
-mypy src/ tests/
+uv run flake8 src/ tests/
 ```
 
 ## License
