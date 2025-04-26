@@ -24,12 +24,11 @@ jobs:
           uv sync
           uv pip install -e .
           uv pip install pytest pytest-cov flake8
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Lint with flake8
         run: |
-          flake8 src tests
+          uv run python -m flake8 src tests
       - name: Test with pytest
         run: |
-          pytest --cov=src --cov-report=xml
+          uv run pytest --cov=src --cov-report=xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1 
