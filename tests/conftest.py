@@ -15,4 +15,4 @@ def mock_env_vars():
         "FAST_API_PORT": "8000",
         "PRODUCTION": "true"  # Prevent loading from .env file
     }):
-        yield 
+        yield
