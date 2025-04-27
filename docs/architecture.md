@@ -1,85 +1,124 @@
-# Architecture Overview
+# Sentiment Analysis Microservice Architecture
 
-## System Architecture
+## System Overview
 
-The Sentiment Analysis Microservice follows a clean architecture pattern with clear separation of concerns:
-
+```mermaid
+graph TD
+    Client[Client] -->|HTTP Request| SentimentAPI[Sentiment Analysis API]
+    SentimentAPI -->|HTTP Request| FedditAPI[Feddit API]
+    SentimentAPI -->|API Call| OpenAI[OpenAI GPT-4o mini]
+    
+    subgraph Sentiment Analysis Service
+        SentimentAPI --> Service[Sentiment Service]
+        Service --> Analyzer[Sentiment Analyzer]
+        Service --> Repository[Analysis Repository]
+    end
+    
+    FedditAPI -->|Comments Data| Service
+    Analyzer -->|Analysis Results| Repository
+    Repository -->|Stored Results| Service
+    Service -->|Response| Client
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                       API Layer                             │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
-│  │   Routes    │    │    DTOs     │    │Dependencies │      │
-│  └─────────────┘    └─────────────┘    └─────────────┘      │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Application Layer                        │
-│  ┌─────────────┐    ┌─────────────┐                         │
-│  │  Services   │    │ Use Cases   │                         │
-│  └─────────────┘    └─────────────┘                         │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Domain Layer                             │
-│  ┌─────────────┐    ┌────────────────┐                      │
-│  │  Entities   │    │  Repositories  │                      │
-│  │             │    │                │                      │
-│  └─────────────┘    └────────────────┘                      │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Infrastructure Layer                        │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
-│  │  Clients    │    │ Repositories│    │  External   │      │
-│  │             │    │             │    │  Services   │      │
-│  └─────────────┘    └─────────────┘    └─────────────┘      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Component Details
-
-### 1. API Layer
-- **Routes**: FastAPI route handlers for the REST API
-- **DTOs**: Data Transfer Objects for request/response models
-- **Dependencies**: Dependency injection setup and configuration
-
-### 2. Application Layer
-- **Services**: Business logic implementation
-- **Use Cases**: Application-specific business rules
-
-### 3. Domain Layer
-- **Entities**: Core business objects
-- **Repositories**: Data access implementations
-
-### 4. Infrastructure Layer
-- **Clients**: External API clients (Feddit API)
-- **Repositories**: Data access implementations
-- **External Services**: Integration with third-party services (OpenAI)
 
 ## Data Flow
 
-1. **Request Handling**:
-   ```
-   HTTP Request → FastAPI Router → Route Handler → DTO Validation
-   ```
+```mermaid
+sequenceDiagram
+    participant Client
+    participant SentimentAPI
+    participant FedditAPI
+    participant OpenAI
+    participant Repository
+    
+    Client->>SentimentAPI: GET /api/v1/sentiment/{subfeddit}
+    SentimentAPI->>FedditAPI: GET /api/v1/comments?subfeddit_id={id}
+    FedditAPI-->>SentimentAPI: Comments Data
+    SentimentAPI->>OpenAI: Analyze Sentiment
+    OpenAI-->>SentimentAPI: Sentiment Results
+    SentimentAPI->>Repository: Store Results
+    Repository-->>SentimentAPI: Confirmation
+    SentimentAPI-->>Client: Response with Analysis
+```
 
-2. **Business Logic**:
-   ```
-   DTO → Use Case → Service → Domain Logic
-   ```
+## Component Architecture
 
-3. **External Integration**:
-   ```
-   Domain Logic → Repository → External API Client → External Service
-   ```
+```mermaid
+graph TD
+    subgraph API Layer
+        Routes[API Routes]
+        DTOs[Data Transfer Objects]
+    end
+    
+    subgraph Application Layer
+        Service[Sentiment Service]
+        UseCases[Use Cases]
+    end
+    
+    subgraph Domain Layer
+        Entities[Domain Entities]
+        Repositories[Repository Interfaces]
+    end
+    
+    subgraph Infrastructure Layer
+        FedditClient[Feddit API Client]
+        OpenAI[OpenAI Integration]
+        RepositoryImpl[Repository Implementation]
+    end
+    
+    Routes --> DTOs
+    DTOs --> Service
+    Service --> UseCases
+    UseCases --> Entities
+    UseCases --> Repositories
+    Repositories --> RepositoryImpl
+    Service --> FedditClient
+    Service --> OpenAI
+```
 
-4. **Response Generation**:
-   ```
-   External Service Response → Repository → Service → Use Case → DTO → HTTP Response
-   ```
+## Key Components
+
+1. **API Layer**
+   - FastAPI application
+   - REST endpoints
+   - Request/Response DTOs
+
+2. **Application Layer**
+   - Sentiment Service
+   - Use Cases
+   - Business Logic
+
+3. **Domain Layer**
+   - Entities (Comment, SentimentAnalysis)
+   - Repository Interfaces
+
+4. **Infrastructure Layer**
+   - Feddit API Client
+   - OpenAI Integration
+   - Repository Implementation
+
+## Data Flow Steps
+
+1. Client makes a request to analyze sentiment for a subfeddit
+2. API routes receive the request and validate parameters
+3. Sentiment Service orchestrates the analysis:
+   - Fetches comments from Feddit API
+   - Sends comments to OpenAI for analysis
+   - Stores results in repository
+4. Results are returned to the client
+
+## Error Handling
+
+```mermaid
+graph TD
+    Request[API Request] --> Validation{Input Validation}
+    Validation -->|Valid| Processing[Process Request]
+    Validation -->|Invalid| Error400[400 Bad Request]
+    Processing --> FedditAPI[Feddit API Call]
+    FedditAPI -->|Success| OpenAI[OpenAI Analysis]
+    FedditAPI -->|Error| Error404[404 Not Found]
+    OpenAI -->|Success| Response[Return Results]
+    OpenAI -->|Error| Error500[500 Internal Error]
+```
 
 ## Key Design Patterns
 

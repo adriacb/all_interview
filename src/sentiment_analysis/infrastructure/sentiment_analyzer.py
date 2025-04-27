@@ -56,6 +56,14 @@ class SentimentAnalyzer:
             batch_size=SENTIMENT_ANALYSIS_BATCH_SIZE
         )
         
+        if SENTIMENT_ANALYSIS_BATCH_SIZE > len(comments):
+            self.logger.warning(
+                "Batch size is greater than the number of comments",
+                batch_size=SENTIMENT_ANALYSIS_BATCH_SIZE,
+                comment_count=len(comments)
+            )
+            SENTIMENT_ANALYSIS_BATCH_SIZE = len(comments)
+
         all_analyses = []
         
         # Process comments in batches

@@ -54,6 +54,73 @@ uv run python -m sentiment_analysis.api.run
 
 2. The API will be available at `http://localhost:8000`
 
+## How to Use the API
+
+### Prerequisites
+- Make sure both the Feddit API and Sentiment Analysis service are running
+- Feddit API should be available at `http://0.0.0.0:8080`
+- Sentiment Analysis service should be available at `http://localhost:8000`
+
+### Getting Started
+
+1. **First, check available subfeddits**:
+```bash
+curl http://0.0.0.0:8080/api/v1/subfeddits/
+```
+This will show you the 3 available subfeddits and their titles.
+
+2. **Analyze sentiment for a subfeddit**:
+```bash
+curl "http://localhost:8000/api/v1/sentiment/{subfeddit_title}?limit=25"
+```
+Replace `{subfeddit_title}` with the exact title of the subfeddit you want to analyze.
+
+### Example Requests
+
+1. **Basic sentiment analysis**:
+```bash
+curl "http://localhost:8000/api/v1/sentiment/Pydantic Upgrading issue?limit=25"
+```
+
+2. **With time range filtering**:
+```bash
+curl "http://localhost:8000/api/v1/sentiment/Pydantic Upgrading issue?limit=25&start_time=2024-01-01T00:00:00&end_time=2024-04-26T00:00:00"
+```
+
+3. **With sorting by polarity**:
+```bash
+curl "http://localhost:8000/api/v1/sentiment/Pydantic Upgrading issue?limit=25&sort_by=polarity"
+```
+
+### Response Example
+```json
+{
+  "comments": [
+    {
+      "id": "string",
+      "text": "string",
+      "polarity_score": 0.8,
+      "classification": "positive"
+    }
+  ],
+  "metadata": {
+    "limit": 25,
+    "skip": 0,
+    "total": 100
+  }
+}
+```
+
+### Using Docker
+
+If you're using Docker, replace `localhost:8000` with the appropriate Docker container address (usually the same as localhost if using Docker's default networking).
+
+### API Documentation
+
+For more detailed API documentation, visit:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
 ## API Documentation
 
 ### Get Sentiment Analysis for Subfeddit Comments
