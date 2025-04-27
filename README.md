@@ -11,6 +11,19 @@ A microservice that provides sentiment analysis for comments in Feddit (fake Red
 - Pagination support
 - Comprehensive error handling
 
+## Documentation
+
+### Technical Documentation
+- [Architecture Overview](docs/architecture.md) - System architecture and component interactions
+- [API Documentation](http://localhost:8000/docs) - Swagger UI documentation
+- [API Documentation (ReDoc)](http://localhost:8000/redoc) - Alternative API documentation
+- [CI/CD Setup](docs/ci_cd_setup.md) - Continuous Integration and Deployment configuration
+- [API Documentation](docs/api_documentation.md) - Detailed API specifications and examples
+- [Feddit API](docs/feddit_api.md) - Documentation for the Feddit API integration
+
+### Setup and Configuration
+- [Setup Guide](docs/setup_guide.md) - Installation and configuration instructions
+
 ## Prerequisites
 
 - Python 3.12
@@ -115,12 +128,6 @@ curl "http://localhost:8000/api/v1/sentiment/Pydantic Upgrading issue?limit=25&s
 
 If you're using Docker, replace `localhost:8000` with the appropriate Docker container address (usually the same as localhost if using Docker's default networking).
 
-### API Documentation
-
-For more detailed API documentation, visit:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
 ## API Documentation
 
 ### Get Sentiment Analysis for Subfeddit Comments
@@ -189,14 +196,6 @@ This project follows PEP 8 style guidelines. Use the following tools for code qu
 # Run linter
 uv run flake8 src/ tests/
 ```
-
-## License
-
-[Your License Here]
-
-## Contributing
-
-[Your Contribution Guidelines Here]
 
 # Introduction
 The `docker-compose.yml` file provides access to `Feddit` which is a fake reddit API built to complete the Allianz challenge. 
