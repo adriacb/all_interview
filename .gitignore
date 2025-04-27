@@ -41,6 +41,7 @@ wheels/
 
 # Documentation
 docs/todo_sentiment_analysis.md 
+docs/internal_architecture.md
 
 uv.lock
 
