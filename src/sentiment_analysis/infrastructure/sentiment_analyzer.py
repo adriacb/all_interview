@@ -50,19 +50,20 @@ class SentimentAnalyzer:
             Exception: If sentiment analysis fails.
             ValueError: If the API response is invalid.
         """
+        batch_size = SENTIMENT_ANALYSIS_BATCH_SIZE
         self.logger.info(
             "Starting batch processing of comments",
             total_comments=len(comments),
-            batch_size=SENTIMENT_ANALYSIS_BATCH_SIZE
+            batch_size=batch_size
         )
         
         if SENTIMENT_ANALYSIS_BATCH_SIZE > len(comments):
             self.logger.warning(
                 "Batch size is greater than the number of comments",
-                batch_size=SENTIMENT_ANALYSIS_BATCH_SIZE,
+                batch_size=batch_size,
                 comment_count=len(comments)
             )
-            SENTIMENT_ANALYSIS_BATCH_SIZE = len(comments)
+            batch_size = len(comments)
 
         all_analyses = []
         
