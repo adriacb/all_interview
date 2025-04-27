@@ -5,19 +5,24 @@
 ```mermaid
 graph TD
     Client[Client] -->|HTTP Request| SentimentAPI[Sentiment Analysis API]
-    SentimentAPI -->|HTTP Request| FedditAPI[Feddit API]
-    SentimentAPI -->|API Call| OpenAI[OpenAI GPT-4o mini]
     
     subgraph Sentiment Analysis Service
         SentimentAPI --> Service[Sentiment Service]
-        Service --> Analyzer[Sentiment Analyzer]
+        Service --> FedditClient[Feddit Client]
+        Service --> OpenAI[OpenAI GPT-4o mini]
         Service --> Repository[Analysis Repository]
     end
     
-    FedditAPI -->|Comments Data| Service
-    Analyzer -->|Analysis Results| Repository
-    Repository -->|Stored Results| Service
-    Service -->|Response| Client
+    FedditClient -->|HTTP Request| FedditAPI[Feddit API]
+    FedditAPI -->|Subfeddit Data| FedditClient
+    FedditAPI -->|Comments Data| FedditClient
+    FedditClient -->|Data| Service
+    Service -->|Comments| OpenAI
+    OpenAI -->|Analysis Results| Service
+    Service -->|Results| Repository
+    Repository -->|Stored Data| Service
+    Service -->|Response| SentimentAPI
+    SentimentAPI -->|HTTP Response| Client
 ```
 
 ## Data Flow
@@ -26,18 +31,33 @@ graph TD
 sequenceDiagram
     participant Client
     participant SentimentAPI
+    participant Service
+    participant FedditClient
     participant FedditAPI
     participant OpenAI
     participant Repository
     
     Client->>SentimentAPI: GET /api/v1/sentiment/{subfeddit}
-    SentimentAPI->>FedditAPI: GET /api/v1/comments?subfeddit_id={id}
-    FedditAPI-->>SentimentAPI: Comments Data
-    SentimentAPI->>OpenAI: Analyze Sentiment
-    OpenAI-->>SentimentAPI: Sentiment Results
-    SentimentAPI->>Repository: Store Results
-    Repository-->>SentimentAPI: Confirmation
-    SentimentAPI-->>Client: Response with Analysis
+    SentimentAPI->>Service: Process Request
+    
+    Service->>FedditClient: Get Subfeddits
+    FedditClient->>FedditAPI: GET /api/v1/subfeddits
+    FedditAPI-->>FedditClient: Subfeddit Data
+    FedditClient-->>Service: Subfeddit Details
+    
+    Service->>FedditClient: Get Comments
+    FedditClient->>FedditAPI: GET /api/v1/comments?subfeddit_id={id}
+    FedditAPI-->>FedditClient: Comments Data
+    FedditClient-->>Service: Comments
+    
+    Service->>OpenAI: Analyze Sentiment
+    OpenAI-->>Service: Analysis Results
+    
+    Service->>Repository: Store Results
+    Repository-->>Service: Confirmation
+    
+    Service-->>SentimentAPI: Analysis Results
+    SentimentAPI-->>Client: HTTP Response
 ```
 
 ## Component Architecture
