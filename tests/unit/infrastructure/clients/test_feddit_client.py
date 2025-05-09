@@ -6,7 +6,6 @@ from datetime import datetime
 
 from sentiment_analysis.infrastructure.clients.feddit_client import FedditClient
 from sentiment_analysis.domain.entities.comment import Comment
-from sentiment_analysis.domain.entities.subfeddit import Subfeddit
 
 
 @pytest.fixture
@@ -97,4 +96,4 @@ class TestFedditClient:
                 limit=25
             )
         
-        assert str(exc_info.value) == "API Error" 
+        assert str(exc_info.value) == "API Error"
