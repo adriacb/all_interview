@@ -123,7 +123,7 @@ class SentimentAnalyzer:
                 input=[
                     {
                         "role": "system",
-                        "content": "You are a sentiment analyst professional. Analyze the following text and return a single number between -1.0 and 1.0, where -1.0 is extremely negative, 0.0 is neutral, and 1.0 is extremely positive.",
+                        "content": "You are a sentiment analyst professional. Analyze the following text and return a sentiment score between -1.0 and 1.0, where -1.0 is extremely negative and 1.0 is extremely positive. The score cannot be exactly 0.0 as we use binary classification: positive (>0.0) or negative (<0.0).",
                     },
                     {"role": "user", "content": comment.text},
                 ],
@@ -136,6 +136,7 @@ class SentimentAnalyzer:
             analysis = SentimentAnalysis(
                 id=comment.id,  # Use comment ID as analysis ID
                 comment_id=comment.id,
+                comment_text=comment.text,
                 subfeddit_id=comment.subfeddit_id,
                 sentiment_score=output.sentiment_score,
                 sentiment_label=output.sentiment_label,

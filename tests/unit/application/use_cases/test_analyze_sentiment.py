@@ -49,6 +49,7 @@ class TestAnalyzeSentimentUseCase:
         mock_analysis = SentimentAnalysis(
             id=1,
             comment_id=1,
+            comment_text="Test comment",
             subfeddit_id=2,
             sentiment_score=0.5,
             sentiment_label="positive",
@@ -60,6 +61,7 @@ class TestAnalyzeSentimentUseCase:
         saved_entity = SentimentAnalysis(
             id=1,
             comment_id=1,
+            comment_text="Test comment",
             subfeddit_id=2,
             sentiment_score=0.5,
             sentiment_label="positive",
@@ -107,3 +109,15 @@ class TestAnalyzeSentimentUseCase:
             await use_case.execute(comments)
         
         assert str(exc_info.value) == "Test error"
+
+    def test_get_sentiment_label(self, use_case):
+        """Test getting sentiment label from score."""
+        # Test positive score
+        assert use_case._get_sentiment_label(0.5) == "positive"
+        
+        # Test negative score
+        assert use_case._get_sentiment_label(-0.5) == "negative"
+        
+        # Test score of 0.0 (should raise error)
+        with pytest.raises(ValueError, match="Score cannot be exactly 0.0 for binary classification"):
+            use_case._get_sentiment_label(0.0)

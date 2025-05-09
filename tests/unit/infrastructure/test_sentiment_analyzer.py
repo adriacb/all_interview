@@ -5,8 +5,36 @@ from unittest.mock import AsyncMock, patch, MagicMock, ANY
 from datetime import datetime
 from openai import OpenAIError
 
-from sentiment_analysis.infrastructure.sentiment_analyzer import SentimentAnalyzer
+from sentiment_analysis.infrastructure.sentiment_analyzer import SentimentAnalyzer, OutputFormat
 from sentiment_analysis.domain.entities.comment import Comment
+
+
+class MockResponse:
+    """Mock response for OpenAI API."""
+    def __init__(self, output_parsed):
+        self.output_parsed = output_parsed
+
+
+@pytest.fixture
+def mock_openai_client():
+    """Create a mock OpenAI client."""
+    mock_client = MagicMock()
+    mock_client.responses = MagicMock()
+    mock_client.responses.parse = AsyncMock(return_value=MockResponse(
+        output_parsed=OutputFormat(
+            sentiment_score=0.5,
+            sentiment_label="positive"
+        )
+    ))
+    return mock_client
+
+
+@pytest.fixture
+def analyzer(mock_openai_client):
+    """Create a SentimentAnalyzer instance with mock client."""
+    with patch('sentiment_analysis.infrastructure.sentiment_analyzer.AsyncOpenAI', return_value=mock_openai_client):
+        analyzer = SentimentAnalyzer(api_key="test-key")
+        return analyzer
 
 
 class TestSentimentAnalyzer:
@@ -31,11 +59,6 @@ class TestSentimentAnalyzer:
             created_at=datetime.now()
         )
 
-    @pytest.fixture
-    def analyzer(self):
-        """Create a SentimentAnalyzer instance with mock API key."""
-        return SentimentAnalyzer(api_key="test-key")
-
     @pytest.mark.asyncio
     async def test_analyze_success(self, analyzer, mock_openai_response, mock_comment):
         """Test successful sentiment analysis."""
@@ -58,7 +81,7 @@ class TestSentimentAnalyzer:
                 input=[
                     {
                         "role": "system",
-                        "content": "You are a sentiment analyst professional. Analyze the following text and return a single number between -1.0 and 1.0, where -1.0 is extremely negative, 0.0 is neutral, and 1.0 is extremely positive.",
+                        "content": "You are a sentiment analyst professional. Analyze the following text and return a sentiment score between -1.0 and 1.0, where -1.0 is extremely negative and 1.0 is extremely positive. The score cannot be exactly 0.0 as we use binary classification: positive (>0.0) or negative (<0.0).",
                     },
                     {"role": "user", "content": mock_comment.text},
                 ],
@@ -108,3 +131,43 @@ class TestSentimentAnalyzer:
             # Expect an exception
             with pytest.raises(ValueError, match="API key is required"):
                 SentimentAnalyzer()
+
+    @pytest.mark.asyncio
+    async def test_analyze_single_comment_includes_comment_text(self, analyzer, mock_comment):
+        """Test that analyze_single_comment includes comment text in the analysis."""
+        # Act
+        analysis = await analyzer._analyze_single_comment(mock_comment)
+
+        # Assert
+        assert analysis.comment_text == mock_comment.text
+        assert analysis.sentiment_score == 0.5
+        assert analysis.sentiment_label == "positive"
+
+    @pytest.mark.asyncio
+    async def test_analyze_batch_includes_comment_text(self, analyzer):
+        """Test that analyze includes comment text for all comments in a batch."""
+        # Arrange
+        comments = [
+            Comment(
+                id=1,
+                text="First comment",
+                subfeddit_id=1,
+                username="test_user",
+                created_at=datetime.now()
+            ),
+            Comment(
+                id=2,
+                text="Second comment",
+                subfeddit_id=1,
+                username="test_user",
+                created_at=datetime.now()
+            )
+        ]
+
+        # Act
+        analyses = await analyzer.analyze(comments)
+
+        # Assert
+        assert len(analyses) == 2
+        assert analyses[0].comment_text == "First comment"
+        assert analyses[1].comment_text == "Second comment"

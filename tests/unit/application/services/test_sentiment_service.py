@@ -88,6 +88,7 @@ class TestSentimentService:
             SentimentAnalysis(
                 id=1,
                 comment_id=1,
+                comment_text="Positive comment",
                 subfeddit_id=1,
                 sentiment_score=0.8,
                 sentiment_label="positive",

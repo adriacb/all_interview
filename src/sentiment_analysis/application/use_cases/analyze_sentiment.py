@@ -37,13 +37,16 @@ class AnalyzeSentimentUseCase:
             score: Sentiment score between -1 and 1.
 
         Returns:
-            Sentiment label: "positive", "neutral", or "negative".
+            Sentiment label: "positive" or "negative".
+
+        Raises:
+            ValueError: If score is exactly 0.0.
         """
-        if score > 0.1:
+        if score > 0.0:
             return "positive"
-        elif score < -0.1:
+        elif score < 0.0:
             return "negative"
-        return "neutral"
+        raise ValueError("Score cannot be exactly 0.0 for binary classification")
 
     async def execute(self, comments: List[Comment]) -> List[SentimentAnalysis]:
         """Execute the use case.

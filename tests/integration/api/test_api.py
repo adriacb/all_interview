@@ -62,6 +62,7 @@ def mock_analysis():
     return SentimentAnalysis(
         id=1,
         comment_id=1,
+        comment_text="Test comment",
         subfeddit_id=1,
         sentiment_score=0.5,
         sentiment_label="positive",
@@ -86,6 +87,7 @@ def mock_sentiment_analyzer():
     analyzer.analyze = AsyncMock(return_value=[SentimentAnalysis(
         id=1,
         comment_id=1,
+        comment_text="Test comment",
         subfeddit_id=1,
         sentiment_score=0.5,
         sentiment_label="positive",
@@ -155,6 +157,7 @@ def mock_dependencies(mock_sentiment_service):
     analyze_mock.return_value = [SentimentAnalysis(
         id=1,
         comment_id=1,
+        comment_text="Positive comment",
         subfeddit_id=1,
         sentiment_score=0.5,
         sentiment_label="positive",
@@ -251,6 +254,7 @@ async def test_analyze_subfeddit_sentiment_sort_by_score(
         SentimentAnalysis(
             id=1,
             comment_id=1,
+            comment_text="First test comment",
             subfeddit_id=1,
             sentiment_score=0.3,
             sentiment_label="positive",
@@ -259,6 +263,7 @@ async def test_analyze_subfeddit_sentiment_sort_by_score(
         SentimentAnalysis(
             id=2,
             comment_id=2,
+            comment_text="Second test comment",
             subfeddit_id=1,
             sentiment_score=0.8,
             sentiment_label="positive",
@@ -298,3 +303,50 @@ async def test_analyze_subfeddit_sentiment_time_range(
     assert response.status_code == 200
     mock_dependencies['get_subfeddits'].assert_called_once()
     mock_dependencies['get_comments'].assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_analyze_subfeddit_sentiment_includes_comment_text(
+    client,
+    mock_dependencies
+):
+    """Test that analyze_subfeddit_sentiment includes comment text in response."""
+    # Arrange
+    subfeddit = "test_subfeddit"
+    mock_dependencies['get_subfeddits'].return_value = [
+        Subfeddit(
+            id=1,
+            username="test_user",
+            title=subfeddit,
+            description="A test subfeddit"
+        )
+    ]
+    mock_dependencies['get_comments'].return_value = [
+        Comment(
+            id=1,
+            text="Test comment",
+            subfeddit_id=1,
+            username="test_user",
+            created_at=datetime.now()
+        )
+    ]
+    mock_dependencies['analyze'].return_value = [
+        SentimentAnalysis(
+            id=1,
+            comment_id=1,
+            comment_text="Test comment",
+            subfeddit_id=1,
+            sentiment_score=0.5,
+            sentiment_label="positive",
+            created_at=datetime.now()
+        )
+    ]
+
+    # Act
+    response = client.get(f"/api/v1/sentiment/{subfeddit}")
+
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["analyses"]) == 1
+    assert data["analyses"][0]["comment_text"] == "Test comment"

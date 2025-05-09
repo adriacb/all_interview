@@ -36,6 +36,7 @@ Retrieves sentiment analysis for comments in a specific subfeddit.
     {
       "id": "string",
       "comment_id": "string",
+      "comment_text": "string",
       "subfeddit_id": "string",
       "sentiment_score": float,
       "sentiment_label": "positive" | "negative" | "neutral",
@@ -78,25 +79,26 @@ GET /api/v1/sentiment/python?limit=10
 Response:
 ```json
 {
-  "comments": [
+  "analyses": [
     {
       "id": "123",
-      "text": "I love Python!",
-      "polarity_score": 0.8,
-      "classification": "positive"
+      "comment_id": "456",
+      "comment_text": "I love Python!",
+      "subfeddit_id": "789",
+      "sentiment_score": 0.8,
+      "sentiment_label": "positive",
+      "created_at": "2024-01-01T00:00:00"
     },
     {
       "id": "124",
-      "text": "Python is difficult to learn.",
-      "polarity_score": -0.3,
-      "classification": "negative"
+      "comment_id": "457",
+      "comment_text": "Python is difficult to learn.",
+      "subfeddit_id": "789",
+      "sentiment_score": -0.3,
+      "sentiment_label": "negative",
+      "created_at": "2024-01-01T00:00:00"
     }
-  ],
-  "metadata": {
-    "limit": 10,
-    "skip": 0,
-    "total": 1000
-  }
+  ]
 }
 ```
 

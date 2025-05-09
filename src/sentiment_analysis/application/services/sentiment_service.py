@@ -131,7 +131,7 @@ class SentimentService:
             
             # Save analyses to repository
             for analysis in analyses:
-                await self.sentiment_analysis_repository.save(analysis)
+                self.sentiment_analysis_repository.save(analysis)
             
             self.logger.info(
                 "Successfully analyzed subfeddit sentiment",

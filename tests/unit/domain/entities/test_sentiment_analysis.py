@@ -3,7 +3,6 @@
 import pytest
 from datetime import datetime
 from pydantic_core._pydantic_core import ValidationError
-
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
 
 
@@ -13,6 +12,7 @@ def test_create_valid_sentiment_analysis():
     analysis = SentimentAnalysis(
         id=1,
         comment_id=2,
+        comment_text="Test comment",
         subfeddit_id=3,
         sentiment_score=0.5,
         sentiment_label="positive",
@@ -20,6 +20,7 @@ def test_create_valid_sentiment_analysis():
     )
     assert analysis.id == 1
     assert analysis.comment_id == 2
+    assert analysis.comment_text == "Test comment"
     assert analysis.subfeddit_id == 3
     assert analysis.sentiment_score == 0.5
     assert analysis.sentiment_label == "positive"
@@ -35,6 +36,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=0,  # Invalid: must be positive
             comment_id=2,
+            comment_text="",
             subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="positive",
@@ -46,6 +48,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=0,  # Invalid: must be positive
+            comment_text="",
             subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="positive",
@@ -57,6 +60,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            comment_text="Test comment",
             subfeddit_id=3,
             sentiment_score=1.5,  # Invalid: must be between -1 and 1
             sentiment_label="positive",
@@ -68,6 +72,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            comment_text="Test comment",
             subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="invalid",  # Invalid: not in allowed values
@@ -79,6 +84,7 @@ def test_create_invalid_sentiment_analysis():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            comment_text="Test comment",
             subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="positive",
@@ -93,8 +99,9 @@ def test_create_invalid_sentiment_score():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            comment_text="Test comment",
             subfeddit_id=3,
-            sentiment_score=1.5,  # Invalid score > 1.0
+            sentiment_score=2.0,  # Invalid score
             sentiment_label="positive",
             created_at=now
         )
@@ -107,6 +114,7 @@ def test_create_invalid_sentiment_label():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            comment_text="Test comment",
             subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="invalid",  # Invalid label
@@ -120,8 +128,24 @@ def test_create_invalid_datetime():
         SentimentAnalysis(
             id=1,
             comment_id=2,
+            comment_text="Test comment",
             subfeddit_id=3,
             sentiment_score=0.5,
             sentiment_label="positive",
             created_at="invalid"  # Invalid datetime
+        )
+
+
+def test_create_invalid_sentiment_score_zero():
+    """Test creating SentimentAnalysis with score of 0.0."""
+    now = datetime.now()
+    with pytest.raises(ValidationError):
+        SentimentAnalysis(
+            id=1,
+            comment_id=2,
+            comment_text="Test comment",
+            subfeddit_id=3,
+            sentiment_score=0.0,  # Invalid: cannot be exactly 0.0
+            sentiment_label="positive",
+            created_at=now
         )

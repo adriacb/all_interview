@@ -67,6 +67,8 @@ class SentimentAnalysisRepository(SentimentAnalysisRepositoryInterface):
         Args:
             analysis: The sentiment analysis result to save
         """
+        if not analysis.comment_text:
+            raise ValueError("Comment text is required for sentiment analysis")
         self._analyses.append(analysis)
 
     async def get_by_subfeddit(
