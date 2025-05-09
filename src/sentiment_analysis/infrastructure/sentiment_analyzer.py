@@ -6,7 +6,6 @@ from sentiment_analysis.domain.entities.comment import Comment
 from sentiment_analysis.domain.entities.sentiment_analysis import SentimentAnalysis
 from sentiment_analysis.logger import configure_logger
 from sentiment_analysis.config import OPENAI_API_KEY, SENTIMENT_ANALYSIS_BATCH_SIZE
-from datetime import datetime
 import asyncio
 
 logger = configure_logger().bind(service="sentiment_analyzer")

@@ -1,5 +1,41 @@
 # API Documentation
 
+## Workflow
+To analyze sentiment of comments, follow these steps:
+
+1. First, get the list of available topics from the Feddit API:
+```bash
+GET http://localhost:8080/api/v1/subfeddits/
+```
+
+Response:
+```json
+[
+  {
+    "id": 1,
+    "username": "user1",
+    "title": "Dummy Topic 1",
+    "description": "First dummy topic"
+  },
+  {
+    "id": 2,
+    "username": "user2",
+    "title": "Dummy Topic 2",
+    "description": "Second dummy topic"
+  }
+]
+```
+
+2. Then, analyze the sentiment of comments in a specific topic using our sentiment analysis API:
+```bash
+GET http://localhost:8000/api/v1/sentiment/{subfeddit}
+```
+
+For example, to analyze "Dummy Topic 2":
+```bash
+GET http://localhost:8000/api/v1/sentiment/Dummy%20Topic%202
+```
+
 ## Base URL
 ```
 http://localhost:8000

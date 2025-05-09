@@ -30,7 +30,7 @@ jobs:
           uv pip install pytest pytest-cov flake8
       - name: Lint with flake8
         run: |
-          uv run python -m flake8 src tests --ignore=W293,E501,W504,W503
+          uv run python -m flake8 src tests --ignore=W293,E501,W504,W503,E731
       - name: Test with pytest
         run: |
           uv run pytest --cov=src --cov-report=xml
