@@ -27,7 +27,17 @@ class SentimentService:
             feddit_client: Client for interacting with the Feddit API
             sentiment_analyzer: Analyzer for performing sentiment analysis
             sentiment_analysis_repository: Repository for storing sentiment analysis results
+            
+        Raises:
+            ValueError: If any required dependency is not properly initialized
         """
+        if not feddit_client:
+            raise ValueError("FedditClient is required")
+        if not sentiment_analyzer:
+            raise ValueError("SentimentAnalyzer is required")
+        if not sentiment_analysis_repository:
+            raise ValueError("SentimentAnalysisRepository is required")
+            
         self.feddit_client = feddit_client
         self.sentiment_analyzer = sentiment_analyzer
         self.sentiment_analysis_repository = sentiment_analysis_repository

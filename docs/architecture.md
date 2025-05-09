@@ -227,4 +227,70 @@ The architecture supports scalability through:
 2. **Architecture Evolution**
    - Microservices split (if needed)
    - Event-driven architecture
-   - Message queue integration 
+   - Message queue integration
+
+## Service Dependencies
+
+### Sentiment Analysis Service
+The sentiment analysis service has the following dependencies:
+
+1. **Feddit API**
+   - Required for fetching subfeddits and comments
+   - Configured via `FEDDIT_API_URL` environment variable
+   - Must be available before the service starts
+
+2. **OpenAI API**
+   - Required for sentiment analysis
+   - Configured via `OPENAI_API_KEY` environment variable
+   - Must be available for sentiment analysis to work
+
+3. **Memory Repository**
+   - Used for storing sentiment analysis results
+   - In-memory storage, no external database required
+   - Data is not persisted between service restarts
+
+### Docker Service Dependencies
+In the Docker Compose configuration:
+- `sentiment-analysis` service depends on `feddit` service
+- No database dependency is required
+- Services are connected via Docker's default network
+
+### Health Checks
+- Feddit API health check: `http://feddit:8080/api/v1/version`
+- Sentiment Analysis health check: `http://localhost:8000/health`
+- Health checks run every 30 seconds with 3 retries 
+
+## Dependency Injection
+
+The application uses FastAPI's built-in dependency injection system for managing dependencies. This approach provides several benefits:
+
+1. **FastAPI Integration**
+   - Native integration with FastAPI's dependency injection system
+   - Automatic dependency resolution
+   - Type-safe dependency injection
+   - Easy testing through dependency overrides
+
+2. **Dependency Providers**
+   - Located in `src/sentiment_analysis/api/dependencies.py`
+   - Each provider is a function that returns a dependency instance
+   - Dependencies are lazily initialized
+   - Easy to mock for testing
+
+3. **Service Dependencies**
+   ```python
+   def get_sentiment_service(
+       feddit_client: FedditClient = Depends(get_feddit_client),
+       sentiment_analyzer: SentimentAnalyzer = Depends(get_sentiment_analyzer),
+       sentiment_analysis_repository: SentimentAnalysisRepository = Depends(get_sentiment_analysis_repository)
+   ) -> SentimentService:
+       return SentimentService(
+           feddit_client=feddit_client,
+           sentiment_analyzer=sentiment_analyzer,
+           sentiment_analysis_repository=sentiment_analysis_repository
+       )
+   ```
+
+4. **Testing**
+   - Dependencies can be easily overridden in tests
+   - Each dependency can be mocked independently
+   - Test fixtures can provide test-specific implementations 
