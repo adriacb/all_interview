@@ -132,7 +132,7 @@ class SentimentAnalyzer:
             output = response.output_parsed
             self.logger.debug("Response from OpenAI", parsed_response=output)
 
-            # Create sentiment analysis
+            # Create sentiment analysis using the comment's original timestamp
             analysis = SentimentAnalysis(
                 id=comment.id,  # Use comment ID as analysis ID
                 comment_id=comment.id,
@@ -140,14 +140,15 @@ class SentimentAnalyzer:
                 subfeddit_id=comment.subfeddit_id,
                 sentiment_score=output.sentiment_score,
                 sentiment_label=output.sentiment_label,
-                created_at=datetime.now()
+                created_at=comment.created_at  # Use the comment's original timestamp
             )
             
             self.logger.debug(
                 "Successfully analyzed comment",
                 comment_id=comment.id,
                 sentiment_score=analysis.sentiment_score,
-                sentiment_label=analysis.sentiment_label
+                sentiment_label=analysis.sentiment_label,
+                created_at=analysis.created_at
             )
             return analysis
         except Exception as e:

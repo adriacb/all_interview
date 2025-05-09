@@ -103,13 +103,39 @@ Response:
 ```
 
 ### Example 2: Filter by Time Range
+```bash
+GET /api/v1/sentiment/Dummy%20Topic%202?start_time=2021-07-04T00:00:00Z&end_time=2021-07-06T10:00:02Z&sort_by_score=true
 ```
-GET /api/v1/sentiment/python?start_time=1609459200&end_time=1612137600
+
+Response:
+```json
+{
+  "analyses": [
+    {
+      "id": 33789,
+      "comment_id": 33789,
+      "comment_text": "Well done! Proud of you.",
+      "subfeddit_id": 2,
+      "sentiment_score": 0.9,
+      "sentiment_label": "positive",
+      "created_at": "2021-07-06T10:49:25"
+    },
+    {
+      "id": 33731,
+      "comment_id": 33731,
+      "comment_text": "It looks great!",
+      "subfeddit_id": 2,
+      "sentiment_score": 0.8,
+      "sentiment_label": "positive",
+      "created_at": "2021-07-04T00:49:25"
+    }
+  ]
+}
 ```
 
 ### Example 3: Sort by Polarity
-```
-GET /api/v1/sentiment/python?sort_by=polarity
+```bash
+GET /api/v1/sentiment/python?sort_by_score=true
 ```
 
 ## Rate Limiting
@@ -139,4 +165,4 @@ The API supports pagination through the `limit` and `skip` parameters:
 - The sentiment analysis is performed using OpenAI's GPT-4o mini
 - Polarity scores range from -1.0 (most negative) to 1.0 (most positive)
 - Classification is binary: "positive" or "negative"
-- Comments are fetched from the Feddit API running on port 8080 
+- Comments are fetched from the Feddit API running on port 8080
