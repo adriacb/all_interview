@@ -157,3 +157,32 @@ class TestSentimentService:
         mock_feddit_client.get_comments.assert_not_called()
         mock_sentiment_analyzer.analyze.assert_not_called()
         mock_repository.save.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_analyze_subfeddit_sentiment_invalid_limit(
+        self,
+        sentiment_service,
+        mock_feddit_client,
+        mock_sentiment_analyzer,
+        mock_repository
+    ):
+        """Test sentiment analysis with invalid limit values."""
+        # Test limit < 1
+        with pytest.raises(ValueError, match="Limit must be between 1 and 100"):
+            await sentiment_service.analyze_subfeddit_sentiment(
+                subfeddit="test_subfeddit",
+                limit=0
+            )
+        
+        # Test limit > 100
+        with pytest.raises(ValueError, match="Limit must be between 1 and 100"):
+            await sentiment_service.analyze_subfeddit_sentiment(
+                subfeddit="test_subfeddit",
+                limit=101
+            )
+        
+        # Verify no API calls were made
+        mock_feddit_client.get_subfeddits.assert_not_called()
+        mock_feddit_client.get_comments.assert_not_called()
+        mock_sentiment_analyzer.analyze.assert_not_called()
+        mock_repository.save.assert_not_called()

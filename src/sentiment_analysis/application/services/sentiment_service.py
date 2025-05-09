@@ -52,7 +52,7 @@ class SentimentService:
         
         Args:
             subfeddit: Name of the subfeddit to analyze
-            limit: Maximum number of comments to analyze
+            limit: Maximum number of comments to analyze (default: 25, min: 1, max: 100)
             start_time: Optional start time for filtering comments
             end_time: Optional end time for filtering comments
             
@@ -60,9 +60,12 @@ class SentimentService:
             List of sentiment analysis results
             
         Raises:
-            ValueError: If the subfeddit is not found
+            ValueError: If the subfeddit is not found or if limit is invalid
             Exception: If an error occurs during analysis
         """
+        if not 1 <= limit <= 100:
+            raise ValueError("Limit must be between 1 and 100")
+            
         self.logger.info(
             "Starting subfeddit sentiment analysis",
             subfeddit=subfeddit,
@@ -138,9 +141,9 @@ class SentimentService:
             
             return analyses
         except ValueError as e:
-            # Re-raise ValueError for subfeddit not found
+            # Re-raise ValueError for subfeddit not found or invalid limit
             self.logger.error(
-                "Subfeddit not found",
+                "Error in sentiment analysis",
                 subfeddit=subfeddit,
                 error=str(e)
             )

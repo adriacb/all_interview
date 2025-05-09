@@ -171,7 +171,11 @@ class FedditClient:
 
         Raises:
             httpx.HTTPError: If the API request fails.
+            ValueError: If limit is less than 1 or greater than 100.
         """
+        if not 1 <= limit <= 100:
+            raise ValueError("Limit must be between 1 and 100")
+            
         self.logger.info(
             "Fetching comments",
             subfeddit_id=subfeddit_id,
@@ -210,7 +214,8 @@ class FedditClient:
             
             self.logger.info(
                 "Successfully fetched comments",
-                count=len(comments)
+                subfeddit_id=subfeddit_id,
+                comment_count=len(comments)
             )
             
             return comments

@@ -22,30 +22,26 @@ Retrieves sentiment analysis for comments in a specific subfeddit.
 - `subfeddit` (required): The name of the subfeddit to analyze
 
 #### Query Parameters
-- `limit` (optional, integer): Number of comments to return (default: 25, max: 100)
-- `skip` (optional, integer): Number of comments to skip (default: 0)
-- `start_time` (optional, integer): Unix timestamp for filtering comments from this time
-- `end_time` (optional, integer): Unix timestamp for filtering comments until this time
-- `sort_by` (optional, string): Sort results by "polarity" (default: chronological)
+- `limit` (optional, integer): Number of comments to return (default: 25, min: 1, max: 100)
+- `start_time` (optional, datetime): ISO 8601 datetime for filtering comments from this time
+- `end_time` (optional, datetime): ISO 8601 datetime for filtering comments until this time
+- `sort_by_score` (optional, boolean): Whether to sort results by sentiment score (default: false)
 
 #### Response
 
 ##### Success Response (200 OK)
 ```json
 {
-  "comments": [
+  "analyses": [
     {
       "id": "string",
-      "text": "string",
-      "polarity_score": float,
-      "classification": "positive" | "negative"
+      "comment_id": "string",
+      "subfeddit_id": "string",
+      "sentiment_score": float,
+      "sentiment_label": "positive" | "negative" | "neutral",
+      "created_at": "datetime"
     }
-  ],
-  "metadata": {
-    "limit": 25,
-    "skip": 0,
-    "total": 100
-  }
+  ]
 }
 ```
 
